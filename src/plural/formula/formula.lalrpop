@@ -1,0 +1,71 @@
+grammar;
+
+use crate::plural::formula::node::{Node, BinOp, UnOp};
+
+extern {
+    type Error = String;
+}
+
+pub(in crate::plural::formula) Formula = Expr;
+
+Expr: Node = {
+    <test:Or> "?" <if_true:Expr> ":" <if_false:Expr> => Node::new_cond(test, if_true, if_false),
+    Or,
+};
+
+Or: Node = {
+    <l:Or> "||" <r:And> => Node::new_binop(BinOp::Or, l, r),
+    <l:Or> "or" <r:And> => Node::new_binop(BinOp::Or, l, r),
+    And,
+};
+
+And: Node = {
+    <l:And> "&&" <r:Logical> => Node::new_binop(BinOp::And, l, r),
+    <l:And> "and" <r:Logical> => Node::new_binop(BinOp::And, l, r),
+    Logical,
+};
+
+Logical: Node = {
+    <l:Logical> "==" <r:Not> => Node::new_binop(BinOp::Eq, l, r),
+    <l:Logical> "!=" <r:Not> => Node::new_binop(BinOp::Ne, l, r),
+    <l:Logical> "<" <r:Not> => Node::new_binop(BinOp::Lt, l, r),
+    <l:Logical> "<=" <r:Not> => Node::new_binop(BinOp::Lte, l, r),
+    <l:Logical> ">" <r:Not> => Node::new_binop(BinOp::Gt, l, r),
+    <l:Logical> ">=" <r:Not> => Node::new_binop(BinOp::Gte, l, r),
+    Not,
+};
+
+Not: Node = {
+    "!" <r:Add> => Node::new_unop(UnOp::Not, r),
+    "not" <r:Add> => Node::new_unop(UnOp::Not, r),
+    Add,
+};
+
+Add: Node = {
+    <l:Add> "+" <r:Mul> => Node::new_binop(BinOp::Add, l, r),
+    <l:Add> "-" <r:Mul> => Node::new_binop(BinOp::Sub, l, r),
+    Mul,
+};
+
+Mul: Node = {
+    <l:Mul> "*" <r:Factor> => Node::new_binop(BinOp::Mul, l, r),
+    <l:Mul> "/" <r:Factor> => Node::new_binop(BinOp::Div, l, r),
+    <l:Mul> "%" <r:Factor> => Node::new_binop(BinOp::Mod, l, r),
+    Factor,
+}
+
+Factor: Node = {
+    "-" <r:Term> => Node::new_unop(UnOp::Neg, r),
+    Term,
+};
+
+Term: Node = {
+    <n:Num> => Node::new_num(n),
+    "n" => Node::Var,
+    "(" <Expr> ")",
+};
+
+Num: i64 = r"[0-9]+" =>? match (<>).parse() {
+    Ok(v) => Ok(v),
+    Err(err) => Err(err.to_string().into()),
+};
