@@ -18,11 +18,18 @@ impl PluralForms {
             None => 2,
             Some(s) => match s.parse() {
                 Ok(v) => v,
-                Err(err) => { return Err(Error::PluralForms(err.to_string())); }
-            }
+                Err(err) => {
+                    return Err(Error::PluralForms(err.to_string()));
+                }
+            },
         };
 
-        Ok(PluralForms { formula, count, definition: input.to_string(), formula_source })
+        Ok(PluralForms {
+            formula,
+            count,
+            definition: input.to_string(),
+            formula_source,
+        })
     }
 
     pub fn get_value(&self, count: usize) -> Option<usize> {
@@ -91,11 +98,28 @@ mod tests {
 
     fn make_cases() -> Vec<(usize, usize)> {
         vec![
-            (1, 0), (21, 0), (31, 0), (41, 0), (121, 0), (131, 0),
-            (10, 2), (20, 2), (110, 2), (120, 2), (210, 2),
-            (11, 2), (111, 2), (211, 2),
-            (14, 2), (114, 2),
-            (2, 1), (5, 1), (24, 1), (102, 1), (105, 1), (124, 1),
+            (1, 0),
+            (21, 0),
+            (31, 0),
+            (41, 0),
+            (121, 0),
+            (131, 0),
+            (10, 2),
+            (20, 2),
+            (110, 2),
+            (120, 2),
+            (210, 2),
+            (11, 2),
+            (111, 2),
+            (211, 2),
+            (14, 2),
+            (114, 2),
+            (2, 1),
+            (5, 1),
+            (24, 1),
+            (102, 1),
+            (105, 1),
+            (124, 1),
         ]
     }
 
@@ -156,10 +180,7 @@ mod tests {
             format!("{:?}", copy),
             format!(
                 "PluralForms {{ formula: {:?}, count: {}, definition: {:?}, formula_source: {:?} }}",
-                forms.formula,
-                COUNT,
-                definition,
-                FORMULA,
+                forms.formula, COUNT, definition, FORMULA,
             ),
         );
 

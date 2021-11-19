@@ -1,5 +1,10 @@
 use super::Decoder;
-use crate::{plural::{Plural, PluralForms}, unit::Unit, error::Error, Message};
+use crate::{
+    error::Error,
+    plural::{Plural, PluralForms},
+    unit::Unit,
+    Message,
+};
 use std::rc::Rc;
 
 pub(crate) struct MessageExtractor<'r, D: Decoder> {
@@ -10,7 +15,11 @@ pub(crate) struct MessageExtractor<'r, D: Decoder> {
 
 impl<'r, D: Decoder> MessageExtractor<'r, D> {
     pub(super) fn new(unit: Unit, decoder: &'r mut D, plural_forms: Option<Rc<PluralForms>>) -> Self {
-        MessageExtractor { unit, decoder, plural_forms }
+        MessageExtractor {
+            unit,
+            decoder,
+            plural_forms,
+        }
     }
 
     pub(super) fn parse_message_fields(mut self, first: bool) -> Result<Option<Unit>, Error> {
@@ -44,7 +53,9 @@ impl<'r, D: Decoder> MessageExtractor<'r, D> {
 
         let message = match self.new_message(msgid, msgid_pl)? {
             Some(msg) => msg,
-            None => { return Ok(None); }
+            None => {
+                return Ok(None);
+            }
         };
 
         // apply result
@@ -58,7 +69,9 @@ impl<'r, D: Decoder> MessageExtractor<'r, D> {
 
     fn new_message(&mut self, msgid: Option<String>, msgid_pl: Option<String>) -> Result<Option<Message>, Error> {
         let singular = match msgid {
-            None => { return Ok(Some(Message::default())); }
+            None => {
+                return Ok(Some(Message::default()));
+            }
             Some(singular) => match msgid_pl {
                 None => singular,
                 Some(plural) => {
@@ -80,13 +93,13 @@ impl<'r, D: Decoder> MessageExtractor<'r, D> {
                         Some(Message::Plural(Plural::new(singular, plural, values, forms)))
                     });
                 }
-            }
+            },
         };
 
         Ok(match self.parse_msg("msgstr")? {
             Some(text) => Some(Message::Simple {
                 id: singular,
-                text: if text.is_empty() { None } else { Some(text) }
+                text: if text.is_empty() { None } else { Some(text) },
             }),
             None => {
                 self.expected("msgstr")?;
@@ -100,9 +113,12 @@ impl<'r, D: Decoder> MessageExtractor<'r, D> {
         match msgid {
             None => Message::default(),
             Some(singular) => match msgid_pl {
-                None => Message::Simple { id: singular, text: None },
+                None => Message::Simple {
+                    id: singular,
+                    text: None,
+                },
                 Some(plural) => Message::Plural(Plural::new(singular, plural, vec![], self.plural_forms())),
-            }
+            },
         }
     }
 
@@ -121,9 +137,9 @@ impl<'r, D: Decoder> MessageExtractor<'r, D> {
 
 #[cfg(test)]
 mod tests {
-    use super::super::decoder::tests::{TestDecoder, TestAction::*};
-    use crate::error::Error;
+    use super::super::decoder::tests::{TestAction::*, TestDecoder};
     use super::*;
+    use crate::error::Error;
 
     impl<'r, D: Decoder> MessageExtractor<'r, D> {
         pub(crate) fn for_tests_zero(decoder: &'r mut D) -> Self {
@@ -135,15 +151,27 @@ mod tests {
         }
 
         pub(crate) fn for_tests_empty(decoder: &'r mut D) -> Self {
-            Self::new(Unit::for_tests_empty(), decoder, Some(Rc::new(PluralForms::for_tests_empty())))
+            Self::new(
+                Unit::for_tests_empty(),
+                decoder,
+                Some(Rc::new(PluralForms::for_tests_empty())),
+            )
         }
 
         pub(crate) fn for_tests_shift(decoder: &'r mut D) -> Self {
-            Self::new(Unit::for_tests_normal(), decoder, Some(Rc::new(PluralForms::for_tests_shift())))
+            Self::new(
+                Unit::for_tests_normal(),
+                decoder,
+                Some(Rc::new(PluralForms::for_tests_shift())),
+            )
         }
 
         pub(crate) fn for_tests_normal(decoder: &'r mut D) -> Self {
-            Self::new(Unit::for_tests_normal(), decoder, Some(Rc::new(PluralForms::for_tests_simple())))
+            Self::new(
+                Unit::for_tests_normal(),
+                decoder,
+                Some(Rc::new(PluralForms::for_tests_simple())),
+            )
         }
     }
 
@@ -151,10 +179,7 @@ mod tests {
     fn test_func_parse_message_fields_with_errors_on_new_message() {
         let err = Error::Unexpected(123, String::from("Error"));
         let err_msg = format!("{:?}", err);
-        let mut decoder = TestDecoder::with_values([
-            ("msgid", ActOk("Something")),
-            ("msgid_plural", ActErr(err)),
-        ]);
+        let mut decoder = TestDecoder::with_values([("msgid", ActOk("Something")), ("msgid_plural", ActErr(err))]);
 
         let msg = MessageExtractor::for_tests_normal(&mut decoder);
 
@@ -168,9 +193,7 @@ mod tests {
     fn test_func_parse_message_fields_with_errors_on_expected() {
         let err = Error::Unexpected(123, String::from("Error"));
         let err_msg = format!("{:?}", err);
-        let mut decoder = TestDecoder::with_values([
-            ("msgid", ActDelayed(err)),
-        ]);
+        let mut decoder = TestDecoder::with_values([("msgid", ActDelayed(err))]);
 
         decoder.set_message(String::from("msgid"));
 
@@ -190,9 +213,7 @@ mod tests {
         {
             let err = Error::Unexpected(123, String::from("Error"));
 
-            decoder.push_values([
-                ("|msgctxt", ActErr(err)),
-            ]);
+            decoder.push_values([("|msgctxt", ActErr(err))]);
 
             let msg = MessageExtractor::for_tests_normal(&mut decoder);
 
@@ -205,9 +226,7 @@ mod tests {
         {
             let err = Error::Unexpected(123, String::from("Error"));
 
-            decoder.push_values([
-                ("|msgid", ActErr(err)),
-            ]);
+            decoder.push_values([("|msgid", ActErr(err))]);
 
             let msg = MessageExtractor::for_tests_normal(&mut decoder);
 
@@ -220,10 +239,7 @@ mod tests {
         {
             let err = Error::Unexpected(123, String::from("Error"));
 
-            decoder.push_values([
-                ("|msgid", ActOk("Something")),
-                ("|msgid_plural", ActErr(err)),
-            ]);
+            decoder.push_values([("|msgid", ActOk("Something")), ("|msgid_plural", ActErr(err))]);
 
             let msg = MessageExtractor::for_tests_normal(&mut decoder);
 
@@ -236,9 +252,7 @@ mod tests {
         {
             let err = Error::Unexpected(123, String::from("Error"));
 
-            decoder.push_values([
-                ("msgctxt", ActErr(err)),
-            ]);
+            decoder.push_values([("msgctxt", ActErr(err))]);
 
             let msg = MessageExtractor::for_tests_normal(&mut decoder);
 
@@ -251,9 +265,7 @@ mod tests {
         {
             let err = Error::Unexpected(123, String::from("Error"));
 
-            decoder.push_values([
-                ("msgid", ActErr(err)),
-            ]);
+            decoder.push_values([("msgid", ActErr(err))]);
 
             let msg = MessageExtractor::for_tests_normal(&mut decoder);
 
@@ -266,10 +278,7 @@ mod tests {
         {
             let err = Error::Unexpected(123, String::from("Error"));
 
-            decoder.push_values([
-                ("msgid", ActOk("Something")),
-                ("msgid_plural", ActErr(err)),
-            ]);
+            decoder.push_values([("msgid", ActOk("Something")), ("msgid_plural", ActErr(err))]);
 
             let msg = MessageExtractor::for_tests_normal(&mut decoder);
 
@@ -315,7 +324,7 @@ mod tests {
                 assert_eq!(msg.get_plural_text(1), Some("my-text"));
                 assert_eq!(msg.get_plural_text(24), Some("my-text"));
             }
-            r => panic!("Unexpected result: {:?}", r)
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 
@@ -359,7 +368,7 @@ mod tests {
                 assert_eq!(msg.get_plural_text(24), Some("my-text-2"));
                 assert_eq!(msg.get_plural_text(114), Some("my-text-3"));
             }
-            r => panic!("Unexpected result: {:?}", r)
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 
@@ -375,7 +384,7 @@ mod tests {
                     assert!(unit.message.is_empty(), "With no `msgid`, the unit should be empty");
                     assert_eq!(unit.message.get_text(), "");
                 }
-                r => panic!("Unexpected result: {:?}", r)
+                r => panic!("Unexpected result: {:?}", r),
             }
         }
 
@@ -389,7 +398,7 @@ mod tests {
                     assert!(unit.message.is_empty(), "With empty `msgid`, the unit should be empty");
                     assert_eq!(unit.message.get_text(), "some text");
                 }
-                r => panic!("Unexpected result: {:?}", r)
+                r => panic!("Unexpected result: {:?}", r),
             }
         }
     }
@@ -401,7 +410,7 @@ mod tests {
 
         match msg.parse_message_fields(false) {
             Ok(None) => (),
-            r => panic!("Unexpected result: {:?}", r)
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 
@@ -412,37 +421,43 @@ mod tests {
 
         match msg.parse_msg("tag1") {
             Ok(Some(r)) => {
-                assert_eq!(msg.unit.locations, vec![
-                    String::from("EmptyFile1:11"),
-                    String::from("EmptyFile2:22"),
-                    String::from("EmptyFile3:33"),
-                ]);
+                assert_eq!(
+                    msg.unit.locations,
+                    vec![
+                        String::from("EmptyFile1:11"),
+                        String::from("EmptyFile2:22"),
+                        String::from("EmptyFile3:33"),
+                    ]
+                );
 
                 assert_eq!(msg.decoder.log(), &[format!("Message: {}/tag1", r)]);
-            },
-            r => panic!("Bad result for tag1: {:?}", r)
+            }
+            r => panic!("Bad result for tag1: {:?}", r),
         }
 
         msg.decoder.inc();
         match msg.parse_msg("tag2") {
-            Ok(Some(r)) => assert_eq!(msg.decoder.log(), &[
-                String::from("Message: message-0/tag1"),
-                format!("Message: {}/tag2", r),
-            ]),
-            r => panic!("Bad result for tag2: {:?}", r)
+            Ok(Some(r)) => assert_eq!(
+                msg.decoder.log(),
+                &[String::from("Message: message-0/tag1"), format!("Message: {}/tag2", r),]
+            ),
+            r => panic!("Bad result for tag2: {:?}", r),
         }
 
         msg.decoder.inc();
         msg.decoder.push_values([]);
         match msg.parse_msg("tag3") {
             Ok(None) => {
-                assert_eq!(msg.decoder.log(), &[
-                    String::from("Message: message-0/tag1"),
-                    String::from("Message: message-1/tag2"),
-                    String::from("Message: message-2/tag3"),
-                ]);
-            },
-            r => panic!("Bad result for tag3: {:?}", r)
+                assert_eq!(
+                    msg.decoder.log(),
+                    &[
+                        String::from("Message: message-0/tag1"),
+                        String::from("Message: message-1/tag2"),
+                        String::from("Message: message-2/tag3"),
+                    ]
+                );
+            }
+            r => panic!("Bad result for tag3: {:?}", r),
         }
 
         let estr = "An error";
@@ -451,8 +466,8 @@ mod tests {
         match msg.parse_msg("tag4") {
             Err(err) => {
                 assert_eq!(format!("{}", err), format!("Unexpected error at line 123: {}", estr));
-            },
-            r => panic!("Bad result for tag4: {:?}", r)
+            }
+            r => panic!("Bad result for tag4: {:?}", r),
         }
     }
 
@@ -463,7 +478,7 @@ mod tests {
 
         match msg.expected("---") {
             Ok(()) => assert!(msg.decoder.log().is_empty(), "Decoder log should be empty"),
-            r => panic!("Bad result for first call of `expected`: {:?}", r)
+            r => panic!("Bad result for first call of `expected`: {:?}", r),
         }
 
         let mut log = vec![String::from("Expected: message-1")];
@@ -471,7 +486,7 @@ mod tests {
         msg.decoder.inc();
         match msg.expected("message-1") {
             Ok(()) => assert_eq!(msg.decoder.log(), &log),
-            r => panic!("Bad result for second call of `expected`: {:?}", r)
+            r => panic!("Bad result for second call of `expected`: {:?}", r),
         }
 
         let estr = "An error";
@@ -484,7 +499,7 @@ mod tests {
                 assert_eq!(format!("{}", err), format!("Unexpected error at line 123: {}", estr));
                 assert_eq!(msg.decoder.log(), &log);
             }
-            r => panic!("Bad result for third call of `expected`: {:?}", r)
+            r => panic!("Bad result for third call of `expected`: {:?}", r),
         }
     }
 
@@ -493,7 +508,10 @@ mod tests {
         let mut decoder = TestDecoder::new();
         let msg = MessageExtractor::for_tests_zero(&mut decoder);
 
-        assert!(msg.plural_forms().is_none(), "In case of no forms, the method `plural_forms` should return none");
+        assert!(
+            msg.plural_forms().is_none(),
+            "In case of no forms, the method `plural_forms` should return none"
+        );
 
         let msg = MessageExtractor::for_tests_empty(&mut decoder);
         if let Some(forms) = msg.plural_forms() {
@@ -534,13 +552,22 @@ mod tests {
         let msg = MessageExtractor::for_tests_no_forms(&mut decoder);
 
         assert_eq!(msg.new_previous(None, None), Message::default());
-        assert_eq!(msg.new_previous(None, Some(String::from("Something"))), Message::default());
+        assert_eq!(
+            msg.new_previous(None, Some(String::from("Something"))),
+            Message::default()
+        );
 
         let prev = msg.new_previous(Some(String::from("my-msg")), None);
-        assert!(!prev.is_empty(), "New previous message without plural should not be empty");
+        assert!(
+            !prev.is_empty(),
+            "New previous message without plural should not be empty"
+        );
         assert!(prev.is_blank(), "New previous message without plural should be blank");
         assert!(prev.is_simple(), "New previous message without plural should be simple");
-        assert!(!prev.is_plural(), "New previous message without plural should not be plural");
+        assert!(
+            !prev.is_plural(),
+            "New previous message without plural should not be plural"
+        );
         assert_eq!(prev.get_id(), "my-msg");
         assert_eq!(prev.get_text(), "");
         assert_eq!(prev.get_plural_id(), None);
@@ -550,7 +577,10 @@ mod tests {
         let prev = msg.new_previous(Some(String::from("my-msg")), Some(String::from("my-plural")));
         assert!(!prev.is_empty(), "New previous message with plural should not be empty");
         assert!(prev.is_blank(), "New previous message with plural should be blank");
-        assert!(!prev.is_simple(), "New previous message with plural should not be simple");
+        assert!(
+            !prev.is_simple(),
+            "New previous message with plural should not be simple"
+        );
         assert!(prev.is_plural(), "New previous message with plural should be plural");
         assert_eq!(prev.get_id(), "my-msg");
         assert_eq!(prev.get_text(), "");
@@ -569,8 +599,11 @@ mod tests {
         let mut msg = MessageExtractor::for_tests_zero(&mut decoder);
 
         match msg.new_message(Some(String::from("MyMsg0")), None) {
-            Err(err) => assert_eq!(format!("{:?}", err), "Unexpected error at line 210: From command `@DoError`"),
-            r => panic!("Unexpected result: {:?}", r)
+            Err(err) => assert_eq!(
+                format!("{:?}", err),
+                "Unexpected error at line 210: From command `@DoError`"
+            ),
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 
@@ -586,7 +619,7 @@ mod tests {
 
         match msg.new_message(Some(String::from("MyMsg1")), None) {
             Err(err) => assert_eq!(format!("{:?}", err), err_msg),
-            r => panic!("Unexpected result: {:?}", r)
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 
@@ -602,7 +635,7 @@ mod tests {
 
         match msg.new_message(Some(String::from("MyMsg2")), Some(String::from("MyText1"))) {
             Err(err) => assert_eq!(format!("{:?}", err), err_msg),
-            r => panic!("Unexpected result: {:?}", r)
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 
@@ -616,8 +649,11 @@ mod tests {
         let mut msg = MessageExtractor::for_tests_zero(&mut decoder);
 
         match msg.new_message(Some(String::from("MyMsg3")), Some(String::from("MyText2"))) {
-            Err(err) => assert_eq!(format!("{:?}", err), "Unexpected error at line 210: From command `@DoError`"),
-            r => panic!("Unexpected result: {:?}", r)
+            Err(err) => assert_eq!(
+                format!("{:?}", err),
+                "Unexpected error at line 210: From command `@DoError`"
+            ),
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 
@@ -631,7 +667,7 @@ mod tests {
                 assert_eq!(id, "my-msg");
                 assert_eq!(text, Some(String::from("message-0")));
             }
-            r => panic!("Bad result: {:?}", r)
+            r => panic!("Bad result: {:?}", r),
         }
     }
 
@@ -642,7 +678,7 @@ mod tests {
 
         match msg.new_message(Some(String::from("my-id")), Some(String::from("my-plural"))) {
             Ok(None) => (),
-            r => panic!("Unexpected result: {:?}", r)
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 
@@ -666,7 +702,7 @@ mod tests {
                 assert_eq!(plural.plural(), "my-plural");
                 assert_eq!(plural.values(), &values);
             }
-            r => panic!("Unexpected result: {:?}", r)
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 }

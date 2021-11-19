@@ -1,17 +1,16 @@
 use super::{line::PoLine, line_iter::LineIter, parser::PoParser, MessageExtractor as Extractor};
 use crate::{
-    unit::Unit,
-    note::Note,
-    error::Error,
-    comment::Comment,
-    plural::PluralForms,
-    CatalogueReader,
-    Origin,
-    State,
+    comment::Comment, error::Error, note::Note, plural::PluralForms, unit::Unit, CatalogueReader, Origin, State,
 };
 
 use locale_config::LanguageRange;
-use std::{collections::HashMap, rc::Rc, mem::{swap, replace}, iter::Peekable, io::Read};
+use std::{
+    collections::HashMap,
+    io::Read,
+    iter::Peekable,
+    mem::{replace, swap},
+    rc::Rc,
+};
 
 pub struct PoReader<'p, R: Read> {
     lines: Peekable<LineIter<'p, R>>,
@@ -36,7 +35,9 @@ impl<'p, R: Read> PoReader<'p, R> {
         };
 
         let (next_unit, has_header) = match res.next_unit(true) {
-            Some(Err(err)) => { return Err(err); }
+            Some(Err(err)) => {
+                return Err(err);
+            }
             Some(Ok(u)) => {
                 let has_header = u.message().is_empty();
 
@@ -60,12 +61,14 @@ impl<'p, R: Read> PoReader<'p, R> {
             None => Ok(None),
 
             // error
-            Some(Err(_)) => if let Some(Err(err)) = replace(&mut self.next_unit, None) {
-                Err(err)
-            } else if let Some(Err(err)) = self.lines.next() {
-                Err(err)
-            } else {
-                unreachable!();
+            Some(Err(_)) => {
+                if let Some(Err(err)) = replace(&mut self.next_unit, None) {
+                    Err(err)
+                } else if let Some(Err(err)) = self.lines.next() {
+                    Err(err)
+                } else {
+                    unreachable!();
+                }
             }
 
             // detect obsolete
@@ -90,7 +93,8 @@ impl<'p, R: Read> PoReader<'p, R> {
                     }
                 }
                 Some(Ok(PoLine::Comment(_, ':', s))) => {
-                    unit.locations.extend(s.split(char::is_whitespace).filter(|x| !x.is_empty()).map(From::from));
+                    unit.locations
+                        .extend(s.split(char::is_whitespace).filter(|x| !x.is_empty()).map(From::from));
                 }
                 Some(Ok(PoLine::Comment(_, '.', value))) => {
                     unit.notes.push(Note::new(Origin::Developer, value));
@@ -129,7 +133,9 @@ impl<'p, R: Read> PoReader<'p, R> {
         self.parse_comments(&mut unit)?;
 
         let line = match self.read_line()? {
-            None => { return Ok(None); }
+            None => {
+                return Ok(None);
+            }
             Some((line, is_obsolete)) => {
                 unit.obsolete = is_obsolete;
                 line
@@ -138,7 +144,9 @@ impl<'p, R: Read> PoReader<'p, R> {
 
         unit = match self.parse_unit(unit, first)? {
             Some(unit) => unit,
-            None => { return Ok(None); }
+            None => {
+                return Ok(None);
+            }
         };
 
         if (!first) && unit.message.is_empty() {
@@ -166,7 +174,7 @@ impl<'p, R: Read> PoReader<'p, R> {
             for line in u.message.get_text().split('\n') {
                 if let Some(n) = line.find(':') {
                     let key = line[..n].trim();
-                    let val = line[(n+1)..].trim();
+                    let val = line[(n + 1)..].trim();
 
                     self.header_properties.insert(key.to_owned(), val.to_owned());
                 }
@@ -203,7 +211,7 @@ impl<'p, R: Read> Iterator for PoReader<'p, R> {
             _ => {
                 let mut res = self.next_unit(false);
 
-                swap(&mut res,&mut self.next_unit);
+                swap(&mut res, &mut self.next_unit);
                 res
             }
         }
@@ -258,12 +266,14 @@ mod tests {
 
         unit.message = Message::Simple {
             id: String::new(),
-            text: Some(String::from("\
-                Header-1: Value1\n\
-                Language: en\n\
-                Plural-Forms: nplurals=2; plural=(n > 1);\n\
-                Header-2: Value2\
-            "))
+            text: Some(String::from(
+                "\
+                    Header-1: Value1\n\
+                    Language: en\n\
+                    Plural-Forms: nplurals=2; plural=(n > 1);\n\
+                    Header-2: Value2\
+                ",
+            )),
         };
 
         PoReader {
@@ -305,11 +315,8 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
             ),
             Ok(_) => panic!(
                 "Unexpected result: forms={:?}, notes={:?}, headers={:?}, next={:?}",
-                reader.plural_forms,
-                reader.header_notes,
-                reader.header_properties,
-                reader.next_unit,
-            )
+                reader.plural_forms, reader.header_notes, reader.header_properties, reader.next_unit,
+            ),
         }
     }
 
@@ -334,12 +341,8 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
             Ok(()) => assert_eq!(reader.target_language(), &fallback),
             Err(err) => panic!(
                 "Unexpected error: {:?}\nforms={:?}, notes={:?}, headers={:?}, next={:?}",
-                err,
-                reader.plural_forms,
-                reader.header_notes,
-                reader.header_properties,
-                reader.next_unit,
-            )
+                err, reader.plural_forms, reader.header_notes, reader.header_properties, reader.next_unit,
+            ),
         }
     }
 
@@ -351,24 +354,36 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
 
         match reader.parse_po_header(&parser) {
             Ok(()) => {
-                assert_eq!(reader.header_notes, vec![
-                    Note::new(Origin::Translator, String::from("You")),
-                    Note::new(Origin::Developer, String::from("Me")),
-                ]);
+                assert_eq!(
+                    reader.header_notes,
+                    vec![
+                        Note::new(Origin::Translator, String::from("You")),
+                        Note::new(Origin::Developer, String::from("Me")),
+                    ]
+                );
 
                 let definition = "nplurals=2; plural=(n > 1);";
 
-                assert_eq!(reader.header_properties, vec![
-                    ("Header-1", "Value1"),
-                    ("Header-2", "Value2"),
-                    ("Language", "en"),
-                    ("Plural-Forms", definition),
-                ].into_iter().map(|(k, v)| (String::from(k), String::from(v))).collect::<HashMap<_, _>>());
+                assert_eq!(
+                    reader.header_properties,
+                    vec![
+                        ("Header-1", "Value1"),
+                        ("Header-2", "Value2"),
+                        ("Language", "en"),
+                        ("Plural-Forms", definition),
+                    ]
+                    .into_iter()
+                    .map(|(k, v)| (String::from(k), String::from(v)))
+                    .collect::<HashMap<_, _>>()
+                );
 
-                assert_eq!(reader.header_comments, vec![
-                    Comment::new('+', String::from("Comment 1")),
-                    Comment::new('=', String::from("Comment 2")),
-                ]);
+                assert_eq!(
+                    reader.header_comments,
+                    vec![
+                        Comment::new('+', String::from("Comment 1")),
+                        Comment::new('=', String::from("Comment 2")),
+                    ]
+                );
 
                 assert_eq!(reader.target_language.as_ref(), "en");
 
@@ -380,7 +395,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                     panic!("Unexpected None for forms");
                 }
             }
-            Err(err) => panic!("Unexpected error: {:?}", err)
+            Err(err) => panic!("Unexpected error: {:?}", err),
         }
     }
 
@@ -397,7 +412,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                     assert!(result, "Result should be true");
                     assert_eq!(line, 1);
                 }
-                v => panic!("Unexpected result for first line: {:?}", v)
+                v => panic!("Unexpected result for first line: {:?}", v),
             }
 
             if let None = reader.lines.next() {
@@ -409,7 +424,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                     assert!(!result, "Result should be false");
                     assert_eq!(line, 2);
                 }
-                v => panic!("Unexpected result for second line: {:?}", v)
+                v => panic!("Unexpected result for second line: {:?}", v),
             }
 
             if let None = reader.lines.next() {
@@ -418,7 +433,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
 
             match reader.read_line() {
                 Ok(None) => (),
-                v => panic!("Unexpected result for the end: {:?}", v)
+                v => panic!("Unexpected result for the end: {:?}", v),
             }
         }
 
@@ -428,7 +443,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
 
             match reader.read_line() {
                 Err(err) => assert_eq!(format!("{:?}", err), "Parse error at line 2, got ‘msgid \"my-error’"),
-                v => panic!("Unexpected result for the first error case: {:?}", v)
+                v => panic!("Unexpected result for the first error case: {:?}", v),
             }
         }
 
@@ -439,7 +454,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
             reader.next_unit = Some(Err(Error::Unexpected(123, String::from("An error"))));
             match reader.read_line() {
                 Err(err) => assert_eq!(format!("{:?}", err), "Unexpected error at line 123: An error"),
-                v => panic!("Unexpected result for the second error case: {:?}", v)
+                v => panic!("Unexpected result for the second error case: {:?}", v),
             }
         }
     }
@@ -455,12 +470,12 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
 
             match reader.parse_comments(&mut unit) {
                 Err(err) => assert_eq!(format!("{:?}", err), "Parse error at line 2, got ‘msgid \"my-error’"),
-                v => panic!("Unexpected result for the first error line: {:?}", v)
+                v => panic!("Unexpected result for the first error line: {:?}", v),
             }
 
             match reader.parse_comments(&mut unit) {
                 Ok(()) => (),
-                v => panic!("Unexpected result for the second error line: {:?}", v)
+                v => panic!("Unexpected result for the second error line: {:?}", v),
             }
         }
 
@@ -471,7 +486,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
 
             match reader.parse_comments(&mut unit) {
                 Ok(()) => (),
-                v => panic!("Unexpected result for single line: {:?}", v)
+                v => panic!("Unexpected result for single line: {:?}", v),
             }
         }
 
@@ -482,12 +497,15 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
 
             match reader.parse_comments(&mut unit) {
                 Err(err) => assert_eq!(format!("{:?}", err), "Parse error at line 3, got ‘msgid \"my-error’"),
-                v => panic!("Unexpected result for the third error line: {:?}", v)
+                v => panic!("Unexpected result for the third error line: {:?}", v),
             }
 
             match reader.parse_comments(&mut unit) {
-                Ok(()) => assert_eq!(unit.notes, [Note::new(Origin::Translator, String::from("simple comment"))]),
-                v => panic!("Unexpected result for the fourth error line: {:?}", v)
+                Ok(()) => assert_eq!(
+                    unit.notes,
+                    [Note::new(Origin::Translator, String::from("simple comment"))]
+                ),
+                v => panic!("Unexpected result for the fourth error line: {:?}", v),
             }
         }
 
@@ -503,11 +521,8 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                 }
                 Err(err) => panic!(
                     "Unexpected error: {:?}\nnotes={:?}, locations={:?}, flags={:?}",
-                    err,
-                    unit.notes,
-                    unit.locations,
-                    unit.flags,
-                )
+                    err, unit.notes, unit.locations, unit.flags,
+                ),
             }
         }
 
@@ -549,7 +564,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
 
                     assert_eq!(unit.state, State::NeedsWork);
                 }
-                v => panic!("Unexpected result for single line: {:?}", v)
+                v => panic!("Unexpected result for single line: {:?}", v),
             }
         }
     }
@@ -564,7 +579,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
 
             match reader.parse_unit(Unit::default(), false) {
                 Ok(None) => (),
-                v => panic!("Unexpected result for empty `msgid`: {:?}", v)
+                v => panic!("Unexpected result for empty `msgid`: {:?}", v),
             }
         }
 
@@ -574,7 +589,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
 
             match reader.parse_unit(Unit::default(), false) {
                 Err(err) => assert_eq!(format!("{:?}", err), "Parse error at line 2, got ‘msgid \"’"),
-                Ok(v) => panic!("Unexpected result for bad `msgid`: {:?}", v)
+                Ok(v) => panic!("Unexpected result for bad `msgid`: {:?}", v),
             }
         }
 
@@ -583,7 +598,9 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
             let mut reader = make_reader(source.as_bytes(), &parser);
             let mut unit = Unit::default();
 
-            reader.parse_comments(&mut unit).expect("Comments should be parsed before tests");
+            reader
+                .parse_comments(&mut unit)
+                .expect("Comments should be parsed before tests");
             match reader.parse_unit(unit, true) {
                 Ok(Some(unit)) => {
                     assert!(unit.message.is_empty(), "Message should be empty");
@@ -594,7 +611,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                     assert_eq!(unit.context(), Some("Any context"));
                     assert_eq!(unit.prev_context(), None);
                 }
-                v => panic!("Unexpected result for empty message (header): {:?}", v)
+                v => panic!("Unexpected result for empty message (header): {:?}", v),
             }
         }
     }
@@ -611,18 +628,30 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                 assert!(unit.prev_message.is_empty(), "Previous message should be empty");
                 assert!(!unit.obsolete, "This should not be obsolete");
 
-                assert_eq!(unit.comments, vec![
-                    Comment::new('$', String::from("Any comment 1")),
-                    Comment::new('&', String::from("Any comment 2")),
-                ]);
+                assert_eq!(
+                    unit.comments,
+                    vec![
+                        Comment::new('$', String::from("Any comment 1")),
+                        Comment::new('&', String::from("Any comment 2")),
+                    ]
+                );
 
-                assert_eq!(unit.locations, [
-                    "File1:1", "File1:2",
-                    "File2:1", "File2:2",
-                ].into_iter().map(str::to_string).collect::<Vec<_>>());
+                assert_eq!(
+                    unit.locations,
+                    ["File1:1", "File1:2", "File2:1", "File2:2",]
+                        .into_iter()
+                        .map(str::to_string)
+                        .collect::<Vec<_>>()
+                );
 
-                assert_eq!(unit.flags, ["flag1", "flag2", "fuzzy"].into_iter().map(str::to_string).collect());
-                assert_eq!(unit.notes, vec![Note::new(Origin::Translator, String::from("Any note"))]);
+                assert_eq!(
+                    unit.flags,
+                    ["flag1", "flag2", "fuzzy"].into_iter().map(str::to_string).collect()
+                );
+                assert_eq!(
+                    unit.notes,
+                    vec![Note::new(Origin::Translator, String::from("Any note"))]
+                );
 
                 assert_eq!(unit.state, State::NeedsWork);
                 assert_eq!(unit.message.get_text(), "Any-Header: Value\nLanguage: fr\n");
@@ -630,7 +659,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                 assert_eq!(unit.context(), Some("Any context"));
                 assert_eq!(unit.prev_context(), None);
             }
-            v => panic!("Unexpected result for empty message (header): {:?}", v)
+            v => panic!("Unexpected result for empty message (header): {:?}", v),
         }
 
         match reader.read_unit(false) {
@@ -639,7 +668,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                 assert_eq!(unit.message.get_id(), "Hello, world !");
                 assert_eq!(unit.message.get_text(), "Salut, tout le monde !");
             }
-            v => panic!("Unexpected result for empty message (header): {:?}", v)
+            v => panic!("Unexpected result for empty message (header): {:?}", v),
         }
     }
 
@@ -682,7 +711,10 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
             let mut reader = make_reader(source.as_bytes(), &parser);
 
             match reader.read_unit(false) {
-                Err(err) => assert_eq!(format!("{:?}", err), "Unexpected error at line 1: Source should not be empty"),
+                Err(err) => assert_eq!(
+                    format!("{:?}", err),
+                    "Unexpected error at line 1: Source should not be empty"
+                ),
                 Ok(r) => panic!("Unexpected result for the test on empty messages: {:?}", r),
             }
         }
@@ -699,17 +731,17 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                 assert_eq!(unit.message.get_id(), "my-id");
                 assert_eq!(unit.message.get_text(), "my-text");
             }
-            v => panic!("Unexpected result for any message: {:?}", v)
+            v => panic!("Unexpected result for any message: {:?}", v),
         }
 
         match reader.next_unit(false) {
             Some(Err(err)) => assert_eq!(format!("{:?}", err), "Parse error at line 5, got ‘msgstr \"’"),
-            v => panic!("Unexpected result for test on error: {:?}", v)
+            v => panic!("Unexpected result for test on error: {:?}", v),
         }
 
         match reader.next_unit(false) {
             None => (),
-            v => panic!("Unexpected result for test on the end of source: {:?}", v)
+            v => panic!("Unexpected result for test on the end of source: {:?}", v),
         }
     }
 
@@ -720,14 +752,14 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
         let reader = PoReader::new(source.as_bytes(), &parser);
 
         match reader {
-            Err(err) => assert_eq!(format!("{:?}", err), "Unexpected error: Bad value list definition: `plural=1+`"),
+            Err(err) => assert_eq!(
+                format!("{:?}", err),
+                "Unexpected error: Bad value list definition: `plural=1+`"
+            ),
             Ok(v) => panic!(
                 "Unexpected result: forms={:?}, notes={:?}, headers={:?}, next={:?}",
-                v.plural_forms,
-                v.header_notes,
-                v.header_properties,
-                v.next_unit,
-            )
+                v.plural_forms, v.header_notes, v.header_properties, v.next_unit,
+            ),
         }
     }
 
@@ -739,24 +771,33 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
         match PoReader::new(source.as_bytes(), &parser) {
             Ok(reader) => {
                 assert_eq!(reader.target_language().as_ref(), "fr");
-                assert_eq!(reader.header_notes(), &vec![Note::new(Origin::Translator, String::from("Any note"))]);
+                assert_eq!(
+                    reader.header_notes(),
+                    &vec![Note::new(Origin::Translator, String::from("Any note"))]
+                );
 
-                assert_eq!(reader.header_comments(), &vec![
-                    Comment::new('$', String::from("Any comment 1")),
-                    Comment::new('&', String::from("Any comment 2")),
-                ]);
+                assert_eq!(
+                    reader.header_comments(),
+                    &vec![
+                        Comment::new('$', String::from("Any comment 1")),
+                        Comment::new('&', String::from("Any comment 2")),
+                    ]
+                );
 
-                assert_eq!(reader.header_properties(), &[
-                    ("Any-Header", "Value"),
-                    ("Language", "fr"),
-                ].into_iter().map(|(k, v)| (k.to_string(), v.to_string())).collect::<HashMap<_, _>>());
+                assert_eq!(
+                    reader.header_properties(),
+                    &[("Any-Header", "Value"), ("Language", "fr"),]
+                        .into_iter()
+                        .map(|(k, v)| (k.to_string(), v.to_string()))
+                        .collect::<HashMap<_, _>>()
+                );
 
                 match reader.plural_forms {
                     None => (),
-                    Some(forms) => panic!("Unexpected forms: {:?}", forms)
+                    Some(forms) => panic!("Unexpected forms: {:?}", forms),
                 }
             }
-            Err(err) => panic!("Unexpected error: {:?}", err)
+            Err(err) => panic!("Unexpected error: {:?}", err),
         }
     }
 
@@ -772,15 +813,15 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                         assert_eq!(unit.message.get_id(), "Hello, world !");
                         assert_eq!(unit.message.get_text(), "Salut, tout le monde !");
                     }
-                    r => panic!("Unexpected result after the first call of `next()`: {:?}", r)
+                    r => panic!("Unexpected result after the first call of `next()`: {:?}", r),
                 }
 
                 match reader.next() {
                     None => (),
-                    Some(r) => panic!("Unexpected result after the second call of `next()`: {:?}", r)
+                    Some(r) => panic!("Unexpected result after the second call of `next()`: {:?}", r),
                 }
             }
-            Err(err) => panic!("Unexpected error: {:?}", err)
+            Err(err) => panic!("Unexpected error: {:?}", err),
         }
     }
 
@@ -796,20 +837,20 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                         assert_eq!(unit.message.get_id(), "msg");
                         assert_eq!(unit.message.get_text(), "text");
                     }
-                    r => panic!("Unexpected result after the first call of `next()`: {:?}", r)
+                    r => panic!("Unexpected result after the first call of `next()`: {:?}", r),
                 }
 
                 match reader.next() {
                     Some(Err(err)) => assert_eq!(format!("{:?}", err), "Parse error at line 6, got ‘msgid \"’"),
-                    r => panic!("Unexpected result after the second call of `next()`: {:?}", r)
+                    r => panic!("Unexpected result after the second call of `next()`: {:?}", r),
                 }
 
                 match reader.next() {
                     None => (),
-                    Some(r) => panic!("Unexpected result after the third call of `next()`: {:?}", r)
+                    Some(r) => panic!("Unexpected result after the third call of `next()`: {:?}", r),
                 }
             }
-            Err(err) => panic!("Unexpected error: {:?}", err)
+            Err(err) => panic!("Unexpected error: {:?}", err),
         }
     }
 }

@@ -6,7 +6,8 @@ extern {
     type Error = String;
 }
 
-pub(in crate::plural::formula) Formula = Expr;
+// TODO with lalrpop 0.19.7: pub(in crate::plural::formula) Formula = Expr;
+pub(crate) Formula = Expr;
 
 Expr: Node = {
     <test:Or> "?" <if_true:Expr> ":" <if_false:Expr> => Node::new_cond(test, if_true, if_false),

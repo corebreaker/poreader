@@ -1,8 +1,7 @@
 [![Crates.io Version](https://img.shields.io/crates/v/poreader.svg)](https://crates.io/crates/poreader)
 [![Docs.rs](https://docs.rs/poreader/badge.svg)](https://docs.rs/poreader/)
-[![TravisCI Build Status](https://app.travis-ci.com/corebreaker/poreader.svg?branch=main)](https://app.travis-ci.com/corebreaker/poreader)
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/um1j480w5k62dcqv/branch/main?svg=true)](https://ci.appveyor.com/project/corebreaker/poreader/branch/main)
-[![codecov](https://codecov.io/gh/corebreaker/poreader/branch/master/graph/badge.svg?token=kKF3CPHuPW)](https://codecov.io/gh/corebreaker/poreader)
+[![CircleCI](https://circleci.com/gh/corebreaker/poreader/tree/main.svg?style=svg)](https://circleci.com/gh/corebreaker/poreader/tree/main)
+[![Coverage Status](https://coveralls.io/repos/github/corebreaker/poreader/badge.svg?branch=main)](https://coveralls.io/github/corebreaker/poreader?branch=main)
 
 # `poreader`
 

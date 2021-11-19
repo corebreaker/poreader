@@ -1,4 +1,7 @@
-use std::{io::Error as IoError, fmt::{Display, Debug, Formatter, Result}};
+use std::{
+    fmt::{Debug, Display, Formatter, Result},
+    io::Error as IoError,
+};
 
 /// Error in reading (and, in future, writing) a catalogue.
 pub enum Error {
@@ -31,10 +34,12 @@ impl Display for Error {
         match self {
             &Error::Io(0, ref err) => Display::fmt(err, f),
             &Error::Io(line, ref err) => write!(f, "{} at line {}", err, line),
-            &Error::Unexpected(line, ref msg) => if line > 0 {
-                write!(f, "Unexpected error at line {}: {}", line, msg)
-            } else {
-                write!(f, "Unexpected error: {}", msg)
+            &Error::Unexpected(line, ref msg) => {
+                if line > 0 {
+                    write!(f, "Unexpected error at line {}: {}", line, msg)
+                } else {
+                    write!(f, "Unexpected error: {}", msg)
+                }
             }
             Error::PluralForms(msg) => write!(f, "Error in plurals forms: {}", msg),
             Error::Parse(line, got, exp) => {
@@ -59,10 +64,12 @@ impl Debug for Error {
         match self {
             &Error::Io(0, ref err) => Debug::fmt(err, f),
             &Error::Io(line, ref err) => write!(f, "{:?} at line {}", err, line),
-            &Error::Unexpected(line, ref msg) => if line > 0 {
-                write!(f, "Unexpected error at line {}: {}", line, msg)
-            } else {
-                write!(f, "Unexpected error: {}", msg)
+            &Error::Unexpected(line, ref msg) => {
+                if line > 0 {
+                    write!(f, "Unexpected error at line {}: {}", line, msg)
+                } else {
+                    write!(f, "Unexpected error: {}", msg)
+                }
             }
             Error::PluralForms(msg) => write!(f, "Error in plurals forms: {}", msg),
             &Error::Parse(line, ref got, ref exp) => {
@@ -100,7 +107,7 @@ impl From<Error> for std::io::Error {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{io::ErrorKind, error::Error as StdErr};
+    use std::{error::Error as StdErr, io::ErrorKind};
 
     fn make_error() -> Error {
         Error::PluralForms(String::from("message"))
@@ -111,16 +118,14 @@ mod tests {
             match (self, other) {
                 (Error::PluralForms(l), Error::PluralForms(r)) => r == l,
                 (Error::Unexpected(ll, lm), Error::Unexpected(rl, rm)) => (ll == rl) && (lm == rm),
-                (Error::Parse(ll, lu, le), Error::Parse(rl, ru, re)) => {
-                    (ll == rl) && (lu == ru) && (le == re)
-                }
+                (Error::Parse(ll, lu, le), Error::Parse(rl, ru, re)) => (ll == rl) && (lu == ru) && (le == re),
                 (Error::Io(ll, le), Error::Io(rl, re)) => {
                     (ll == rl)
                         && (le.kind() == re.kind())
                         && (le.raw_os_error() == re.raw_os_error())
                         && (le.get_ref().map(|v| v.to_string()) == re.get_ref().map(|v| v.to_string()))
                 }
-                _ => false
+                _ => false,
             }
         }
     }
@@ -148,7 +153,10 @@ mod tests {
         let other = Error::Unexpected(15, String::from("weird"));
 
         assert!(other.source().is_none(), "Other error should have no source");
-        assert_eq!(format!("{}", err.source().unwrap_or(&other)), format!("{}", make_error()));
+        assert_eq!(
+            format!("{}", err.source().unwrap_or(&other)),
+            format!("{}", make_error())
+        );
     }
 
     #[test]

@@ -21,17 +21,18 @@
 extern crate locale_config;
 extern crate regex;
 
-mod po;
 mod enums;
-pub mod unit;
-pub mod note;
-pub mod error;
-pub mod plural;
+mod po;
+
 pub mod comment;
+pub mod error;
+pub mod note;
+pub mod plural;
+pub mod unit;
 
 pub use self::{
-    po::{PoReader, PoParser},
-    enums::{State, Origin, Message},
+    enums::{Message, Origin, State},
+    po::{PoParser, PoReader},
 };
 
 use locale_config::LanguageRange;
@@ -41,7 +42,7 @@ use std::collections::HashMap;
 ///
 /// Defines common interface of catalogue readers. Read the units by simply iterating over the
 /// reader. The other methods are for the important metadata.
-pub trait CatalogueReader : Iterator<Item = Result<unit::Unit, error::Error>> {
+pub trait CatalogueReader: Iterator<Item = Result<unit::Unit, error::Error>> {
     fn target_language(&self) -> &LanguageRange<'static>;
     fn header_notes(&self) -> &Vec<note::Note>;
     fn header_comments(&self) -> &Vec<comment::Comment>;

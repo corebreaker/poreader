@@ -10,20 +10,14 @@
 //! [gettext]: https://www.gnu.org/software/gettext/
 //! [tt]: http://toolkit.translatehouse.org/
 
-mod line;
-mod reader;
-mod parser;
 mod decoder;
+mod line;
 mod line_iter;
-mod unescape;
 mod message_extractor;
+mod parser;
+mod reader;
+mod unescape;
 
-pub use self::{
-    parser::PoParser,
-    reader::PoReader,
-};
+pub use self::{parser::PoParser, reader::PoReader};
 
-pub(super) use self::{
-    decoder::Decoder,
-    message_extractor::MessageExtractor,
-};
+pub(super) use self::{decoder::Decoder, message_extractor::MessageExtractor};

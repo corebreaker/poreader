@@ -30,7 +30,10 @@ mod tests {
     fn test_func_new() {
         assert_eq!(
             make_comment(),
-            Comment { kind: 'X', content: String::from("Comment") },
+            Comment {
+                kind: 'X',
+                content: String::from("Comment")
+            },
         );
     }
 

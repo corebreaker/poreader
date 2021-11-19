@@ -1,9 +1,5 @@
-mod state;
-mod origin;
 mod message;
+mod origin;
+mod state;
 
-pub use self::{
-    state::State,
-    origin::Origin,
-    message::Message,
-};
+pub use self::{message::Message, origin::Origin, state::State};

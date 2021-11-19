@@ -1,0 +1,54 @@
+version: 2.1
+
+orbs:
+  coveralls: coveralls/coveralls@1.0.6
+
+jobs:
+  checks:
+    docker:
+      - image: cimg/rust:1.56.1
+    steps:
+      - checkout
+      - run:
+          name: Check formatting
+          command: "cargo fmt -- --config-path .circleci/fmt.ini --check"
+
+  coverage:
+    docker:
+      - image: cimg/rust:1.56.1-node
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: ".circleci/install.sh"
+      - run:
+          name: Make coverage
+          command: ".circleci/coverage.sh"
+      - coveralls/upload:
+          path_to_lcov: target/coverage/lcov.info
+      - store_artifacts:
+          path: target/coverage
+  test:
+    docker:
+      - image: cimg/rust:1.56.1
+    steps:
+      - restore_cache:
+          key: project-cache
+      - checkout
+      - run:
+          name: Run tests
+          command: "cargo test"
+      - save_cache:
+          key: project-cache
+          paths:
+            - "~/.cargo"
+
+workflows:
+  coverage:
+    jobs:
+      - coverage
+
+  all-tests:
+    jobs:
+      - checks
+      - test
