@@ -13,6 +13,44 @@
 //! primarily on using it in a way [gettext] and [translate-toolkit][tt] work, namely with separate
 //! catalogue for each language.
 //!
+//! Example:
+//! ```rust
+//! use poreader::PoParser;
+//!
+//! use std::{env::args, fs::File, io::Result};
+//!
+//! fn main() -> Result<()> {
+//!     // Filename
+//!     let filename = match args().skip(1).next() {
+//!         Some(v) => v,
+//!         None => {
+//!             eprintln!("No file specified");
+//!
+//!             return Ok(());
+//!         }
+//!     };
+//!
+//!     // Open a file
+//!     let file = File::open(filename)?;
+//!
+//!     // Create PO parser
+//!     let parser = PoParser::new();
+//!
+//!     // Create PO reader
+//!     let reader = parser.parse(file)?;
+//!
+//!     // Read PO file by iterating on units
+//!     for unit in reader {
+//!         let unit = unit?;
+//!
+//!         // Show `msgid`
+//!         println!(" - {}", unit.message().get_id())
+//!     }
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
 //! [PO]: https://www.gnu.org/software/gettext/manual/html_node/PO-Files.html
 //! [XLIFF]: https://www.oasis-open.org/committees/xliff/
 //! [gettext]: https://www.gnu.org/software/gettext/

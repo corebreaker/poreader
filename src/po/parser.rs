@@ -3,6 +3,11 @@ use crate::error::Error;
 use regex::Regex;
 use std::{collections::HashMap, io::Read};
 
+/// Object used for the creation of a PO reader
+///
+/// This structure is used for initializing a parser.
+///
+/// The reader is created by the method `[PoReader::parse](#method.parse)`.
 pub struct PoParser {
     map_re: Regex,
     map_check_re: Regex,

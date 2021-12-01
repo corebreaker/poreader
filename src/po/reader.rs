@@ -12,6 +12,9 @@ use std::{
     rc::Rc,
 };
 
+/// Object for reading PO streams
+///
+/// An iterator is implemented for reading each unit of translation in the PO stream.
 pub struct PoReader<'p, R: Read> {
     lines: Peekable<LineIter<'p, R>>,
     next_unit: Option<Result<Unit, Error>>,

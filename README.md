@@ -1,7 +1,7 @@
 [![Crates.io Version](https://img.shields.io/crates/v/poreader.svg)](https://crates.io/crates/poreader)
 [![Docs.rs](https://docs.rs/poreader/badge.svg)](https://docs.rs/poreader/)
+[![CircleCI](https://circleci.com/gh/corebreaker/poreader/tree/main.svg?style=shield)](https://circleci.com/gh/corebreaker/poreader/tree/main)
 [![Coverage Status](https://coveralls.io/repos/github/corebreaker/poreader/badge.svg?branch=main)](https://coveralls.io/github/corebreaker/poreader?branch=main)
-[![CircleCI](https://circleci.com/gh/corebreaker/poreader/tree/main.svg?style=svg)](https://circleci.com/gh/corebreaker/poreader/tree/main)
 
 # `poreader`
 
@@ -31,7 +31,7 @@ poreader = "~1.0"
 Or, to use the Git repo directly:
 ```toml
 [dependencies.poreader]
-git = "https://github.com/rust-locale/poreader.git"
+git = "https://github.com/corebreaker/poreader.git"
 ```
 
 ## How to use
@@ -57,7 +57,7 @@ fn main() -> Result<()> {
     // Filename
     let filename = match args().skip(1).next() {
         Some(v) => v,
-        None => { return Err(Error::from(ErrorKind::Other, NoArg)); }
+        None => { return Err(Error::new(ErrorKind::Other, NoArg)); }
     };
 
     // Open a file
@@ -74,7 +74,7 @@ fn main() -> Result<()> {
         let unit = unit?;
 
         // Show `msgid`
-        println(" - {}", unit.message().get_id())
+        println!(" - {}", unit.message().get_id())
     }
 
     Ok(())
