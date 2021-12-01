@@ -5,11 +5,11 @@ edition = "2021"
 description = "Read translation catalogs in PO format."
 authors = ["Frédéric Meyer <frederic.meyer.77@gmail.com>"]
 license = "MIT"
-
 documentation = "https://docs.rs/poreader"
 repository = "https://github.com/coreabreaker/poreader/"
 readme = "README.md"
 keywords = ["translate", "po", "gettext", "file"]
+categories = ["internationalization", "text-processing"]
 
 [badges]
 travis-ci = { repository = "coreabreaker/poreader" }

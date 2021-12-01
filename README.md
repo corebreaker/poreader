@@ -1,7 +1,7 @@
 [![Crates.io Version](https://img.shields.io/crates/v/poreader.svg)](https://crates.io/crates/poreader)
 [![Docs.rs](https://docs.rs/poreader/badge.svg)](https://docs.rs/poreader/)
-[![CircleCI](https://circleci.com/gh/corebreaker/poreader/tree/main.svg?style=svg)](https://circleci.com/gh/corebreaker/poreader/tree/main)
 [![Coverage Status](https://coveralls.io/repos/github/corebreaker/poreader/badge.svg?branch=main)](https://coveralls.io/github/corebreaker/poreader?branch=main)
+[![CircleCI](https://circleci.com/gh/corebreaker/poreader/tree/main.svg?style=svg)](https://circleci.com/gh/corebreaker/poreader/tree/main)
 
 # `poreader`
 
@@ -17,7 +17,7 @@ written in Rust.
 
 ## Documentation
 
-On [![Docs.rs](https://docs.rs/poreader/badge.svg)](https://docs.rs/locale/).
+On [Docs.rs](https://docs.rs/poreader/).
 
 ## Installation
 
