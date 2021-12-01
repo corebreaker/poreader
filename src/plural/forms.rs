@@ -1,6 +1,7 @@
 use super::formula::Formula;
 use crate::{error::Error, PoParser};
 
+/// Decoded information from the header `Plural-Forms`
 #[derive(Clone, Debug)]
 pub struct PluralForms {
     formula: Formula,

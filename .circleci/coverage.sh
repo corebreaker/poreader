@@ -7,7 +7,7 @@ export RUSTFLAGS="-Zinstrument-coverage -Zprofile -Ccodegen-units=1 -Copt-level=
 export LLVM_PROFILE_FILE="default.profraw"
 
 echo 'Run tests'
-if cargo +nightly test; then
+if cargo +nightly test --lib; then
   mkdir target/coverage >/dev/null 2>&1
 
   echo 'Select files and store them into a Zip archive'
