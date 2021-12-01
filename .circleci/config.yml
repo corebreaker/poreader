@@ -1,12 +1,9 @@
 version: 2.1
 
-orbs:
-  coveralls: coveralls/coveralls@1.0.6
-
 jobs:
   checks:
     docker:
-      - image: cimg/rust:1.56.1
+      - image: cimg/rust:1.56.1-node
     steps:
       - checkout
       - run:
@@ -15,17 +12,15 @@ jobs:
 
   coverage:
     docker:
-      - image: cimg/rust:1.56.1-node
+      - image: corebreaker/rust-devtools-circleci:rust1.56.1-v0.1.0
     steps:
       - checkout
       - run:
-          name: Install
-          command: ".circleci/install.sh"
-      - run:
           name: Make coverage
           command: ".circleci/coverage.sh"
-      - coveralls/upload:
-          path_to_lcov: target/coverage/lcov.info
+      - run:
+          name: Upload Coverage Result To Coveralls
+          command: "coveralls -D target -i target/coverage/coveralls.json circleci"
       - store_artifacts:
           path: target/coverage
   test:

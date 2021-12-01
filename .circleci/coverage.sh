@@ -11,17 +11,17 @@ if cargo +nightly test; then
   mkdir target/coverage >/dev/null 2>&1
 
   echo 'Select files and store them into a Zip archive'
-  zip -0 ./target/coverage/ccov.zip `find target \( -name "poreader*.gc*" \) -print`
-  cp ./target/coverage/ccov.zip /tmp/artifacts/
+  zip -0 ./target/coverage/cov-binaries.zip $(find target -name "poreader*.gc*" -print)
 
   echo 'Produce file for Coveralls'
-  grcov ./target/coverage/ccov.zip \
-    -s src \
-    -t lcov \
+  grcov ./target/coverage/cov-binaries.zip \
+    -s . \
+    -b target \
+    -t coveralls+ \
+    --token $COVERALLS_REPO_TOKEN \
     --ignore '*/.cargo/*' \
     --ignore '*/target/debug/build/*' \
     --llvm \
     --ignore-not-existing \
-    | awk '/^SF:/ {printf "SF:/home/circleci/project/%s", substr($0, 4); print ""; next} {print}' \
-    > target/coverage/lcov.info
+    -o target/coverage/coveralls.json
 fi
