@@ -1,5 +1,5 @@
-use poreader::{error::Error, note::Note, CatalogueReader, Message, Origin, PoParser, State};
 use locale_config::LanguageRange;
+use poreader::{error::Error, note::Note, CatalogueReader, Message, Origin, PoParser, State};
 
 static SAMPLE_PO: &'static str = r###"
 msgid ""
@@ -51,7 +51,10 @@ fn integration_test() -> Result<(), Error> {
     let lang = LanguageRange::new("fr").unwrap();
 
     assert_eq!(reader.target_language(), &lang);
-    assert_eq!(reader.header_properties().get("Project-Id-Version"), Some(&String::from("poreader test")));
+    assert_eq!(
+        reader.header_properties().get("Project-Id-Version"),
+        Some(&String::from("poreader test"))
+    );
 
     {
         let u = reader.next().unwrap().unwrap();
@@ -103,15 +106,18 @@ fn integration_test() -> Result<(), Error> {
             assert_eq!(msg.get_text(), "Message\nchangé");
         }
 
-        assert_eq!(u.notes(), &vec![
-            Note::new(Origin::Developer, String::from("Extracted comment")),
-            Note::new(Origin::Translator, String::from("Translator comment")),
-        ]);
+        assert_eq!(
+            u.notes(),
+            &vec![
+                Note::new(Origin::Developer, String::from("Extracted comment")),
+                Note::new(Origin::Translator, String::from("Translator comment")),
+            ]
+        );
 
-        assert_eq!(u.locations(), &vec![
-            String::from("Location:42"),
-            String::from("Another:69"),
-        ]);
+        assert_eq!(
+            u.locations(),
+            &vec![String::from("Location:42"), String::from("Another:69"),]
+        );
 
         assert!(!u.is_translated(), "It should not be translated");
         assert!(!u.is_obsolete(), "It should not be obsolete");
@@ -144,8 +150,11 @@ fn integration_test() -> Result<(), Error> {
         assert_eq!(msg.get_id(), "A message with several translations");
         assert_eq!(msg.get_plural_id(), Some("Some messages with several translations"));
         assert_eq!(msg.get_plural_text(1), Some("Un message avec plusieurs traductions"));
-        assert_eq!(msg.get_plural_text(3), Some("Quelques messages avec plusieurs traductions"));
         assert_eq!(msg.get_plural_text(10), Some("Des messages avec plusieurs traductions"));
+        assert_eq!(
+            msg.get_plural_text(3),
+            Some("Quelques messages avec plusieurs traductions")
+        );
     }
 
     {
@@ -156,15 +165,18 @@ fn integration_test() -> Result<(), Error> {
             text: Some(String::from("Message obsolète")),
         };
 
+        assert!(u.is_obsolete(), "This entry should be obsolete");
+        assert!(u.is_translated(), "This entry should be translated");
+        assert!(u.locations().is_empty(), "There should be no location");
         assert_eq!(u.context(), None);
         assert_eq!(u.message(), &msg);
         assert_eq!(u.prev_context(), None);
         assert_eq!(u.prev_message(), &empty_msg);
-        assert_eq!(u.notes().as_slice(), &[Note::new(Origin::Translator, String::from("Another comment"))]);
-        assert!(u.locations().is_empty(), "There should be no location");
         assert_eq!(u.state(), State::Final);
-        assert!(u.is_translated(), "This entry should be translated");
-        assert!(u.is_obsolete(), "This entry should be obsolete");
+        assert_eq!(
+            u.notes().as_slice(),
+            &[Note::new(Origin::Translator, String::from("Another comment"))]
+        );
     }
 
     assert!(reader.next().is_none(), "There should be no other entry in the stream");

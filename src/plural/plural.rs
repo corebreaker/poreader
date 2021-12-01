@@ -33,11 +33,12 @@ impl Plural {
     }
 
     pub fn get(&self, count: usize) -> Option<&str> {
-        self.forms.as_ref().and_then(|forms| forms
-            .get_value(count)
-            .and_then(|index| self.values.get(index))
-            .map(|v| v.as_str())
-        )
+        self.forms.as_ref().and_then(|forms| {
+            forms
+                .get_value(count)
+                .and_then(|index| self.values.get(index))
+                .map(|v| v.as_str())
+        })
     }
 
     pub fn values(&self) -> &Vec<String> {
@@ -55,8 +56,8 @@ impl Plural {
 
 #[cfg(test)]
 mod tests {
-    use crate::PoParser;
     use super::*;
+    use crate::PoParser;
 
     impl Plural {
         pub(crate) fn new_empty() -> Plural {
@@ -90,10 +91,7 @@ mod tests {
         Plural::new(
             String::from(SINGULAR_EN),
             String::from(PLURAL_EN),
-            vec![
-                String::from(SINGULAR_FR),
-                String::from(PLURAL_FR),
-            ],
+            vec![String::from(SINGULAR_FR), String::from(PLURAL_FR)],
             Some(Rc::new(forms)),
         )
     }
@@ -111,15 +109,18 @@ mod tests {
         assert_eq!(plural.values, vec![String::from(SINGULAR_FR), String::from(PLURAL_FR)]);
         assert!(plural.forms.is_some(), "Form should be a `Some`");
         assert_eq!(plural.forms.as_ref().map(|v| v.get_count()), Some(2));
-        assert_eq!(plural.forms.as_ref().map(|v| v.get_formula()).map(|s| s.as_str()), Some("n>1"));
+        assert_eq!(
+            plural.forms.as_ref().map(|v| v.get_formula()).map(|s| s.as_str()),
+            Some("n>1")
+        );
 
-        assert_eq!(format!("{:?}", plural), format!(
-            "Plural {{ forms: {:?}, singular: {:?}, plural: {:?}, values: {:?} }}",
-            plural.forms,
-            plural.singular,
-            plural.plural,
-            plural.values,
-        ))
+        assert_eq!(
+            format!("{:?}", plural),
+            format!(
+                "Plural {{ forms: {:?}, singular: {:?}, plural: {:?}, values: {:?} }}",
+                plural.forms, plural.singular, plural.plural, plural.values,
+            )
+        )
     }
 
     #[test]
@@ -141,7 +142,7 @@ mod tests {
         let plural = make_plural();
 
         assert_eq!(plural.first(), SINGULAR_FR);
-        assert_eq!(make_blank( vec![]).first(), "");
+        assert_eq!(make_blank(vec![]).first(), "");
     }
 
     #[test]
@@ -160,8 +161,14 @@ mod tests {
 
         assert!(!plural.is_blank(), "This should not be blank");
         assert!(make_blank(vec![]).is_blank(), "With empty list, this should be blank");
-        assert!(make_blank(empty_values).is_blank(), "With a list with all empty strings, this should be blank");
-        assert!(!make_blank(some_values).is_blank(), "With a list with some empty strings, this should not be blank");
+        assert!(
+            make_blank(empty_values).is_blank(),
+            "With a list with all empty strings, this should be blank"
+        );
+        assert!(
+            !make_blank(some_values).is_blank(),
+            "With a list with some empty strings, this should not be blank"
+        );
     }
 
     #[test]

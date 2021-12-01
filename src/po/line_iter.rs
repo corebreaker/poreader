@@ -1,6 +1,6 @@
 use super::{line::PoLine, PoParser};
 use crate::error::Error;
-use std::io::{Read, BufReader, BufRead, Lines};
+use std::io::{BufRead, BufReader, Lines, Read};
 
 pub(super) struct LineIter<'p, R: Read> {
     n: usize,
@@ -31,7 +31,9 @@ impl<'p, R: Read> Iterator for LineIter<'p, R> {
 
                     return Some(Err(Error::Io(n, e)));
                 }
-                None => { return None; }
+                None => {
+                    return None;
+                }
             };
 
             self.n += 1;
@@ -42,7 +44,7 @@ impl<'p, R: Read> Iterator for LineIter<'p, R> {
                 Err(()) => {
                     self.inner = None;
 
-                    return Some(Err(Error::Parse(self.n, line, String::new())))
+                    return Some(Err(Error::Parse(self.n, line, String::new())));
                 }
             }
         }
@@ -90,7 +92,7 @@ mod tests {
                 assert_eq!(tag, "msgid");
                 assert_eq!(string, "Line 1");
             }
-            v => panic!("Unexpected result for the first line: {:?}", v)
+            v => panic!("Unexpected result for the first line: {:?}", v),
         }
 
         match iter.next() {
@@ -100,7 +102,7 @@ mod tests {
                 assert_eq!(tag, "msgstr");
                 assert_eq!(string, "Line 2");
             }
-            v => panic!("Unexpected result for the second line: {:?}", v)
+            v => panic!("Unexpected result for the second line: {:?}", v),
         }
 
         if let Some(v) = iter.next() {
@@ -125,7 +127,7 @@ mod tests {
                 assert_eq!(tag, "msgid");
                 assert_eq!(string, "Line 1");
             }
-            v => panic!("Unexpected result for the first line: {:?}", v)
+            v => panic!("Unexpected result for the first line: {:?}", v),
         }
 
         match iter.next() {
@@ -135,7 +137,7 @@ mod tests {
                 assert_eq!(tag, "msgstr");
                 assert_eq!(string, "Line 2");
             }
-            v => panic!("Unexpected result for the second line: {:?}", v)
+            v => panic!("Unexpected result for the second line: {:?}", v),
         }
 
         if let Some(v) = iter.next() {
@@ -162,7 +164,7 @@ mod tests {
                 assert_eq!(kind, ':');
                 assert_eq!(content, "File:1");
             }
-            v => panic!("Unexpected result for the first line: {:?}", v)
+            v => panic!("Unexpected result for the first line: {:?}", v),
         }
 
         match iter.next() {
@@ -172,14 +174,17 @@ mod tests {
                 assert_eq!(tag, "msgid");
                 assert_eq!(string, "Line 1");
             }
-            v => panic!("Unexpected result for the second line: {:?}", v)
+            v => panic!("Unexpected result for the second line: {:?}", v),
         }
 
         match iter.next() {
             Some(Err(err)) => {
-                assert_eq!(format!("{:?}", err), "Parse error at line 5, got ‘            msgstr \"Line 2’");
+                assert_eq!(
+                    format!("{:?}", err),
+                    "Parse error at line 5, got ‘            msgstr \"Line 2’"
+                );
             }
-            v => panic!("Unexpected result for the third line: {:?}", v)
+            v => panic!("Unexpected result for the third line: {:?}", v),
         }
 
         if let Some(v) = iter.next() {

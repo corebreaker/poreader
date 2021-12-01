@@ -1,5 +1,5 @@
 use super::{line::PoLine, line_iter::LineIter};
-use crate::{unit::Unit, error::Error};
+use crate::{error::Error, unit::Unit};
 use std::{io::Read, iter::Peekable};
 
 #[inline]
@@ -25,20 +25,28 @@ impl<'p, R: Read> Decoder for Peekable<LineIter<'p, R>> {
             Some(PoLine::Message(_, p, t, _)) if t == tag && p.starts_with('~') == unit.obsolete => {
                 match self.next().unwrap().unwrap() {
                     PoLine::Message(_, p, _, s) => (p, s),
-                    _ => { unreachable!(); }
+                    _ => {
+                        unreachable!();
+                    }
                 }
             }
-            _ => { return Ok(None); }
+            _ => {
+                return Ok(None);
+            }
         };
 
         while let Some(PoLine::Continuation(_, ref p, _)) = fetch_next(self)? {
             if *p != prefix {
-                break
+                break;
             }
 
             match self.next().unwrap().unwrap() {
-                PoLine::Continuation(_, _, s) => { string.push_str(&s); }
-                _ => { unreachable!(); }
+                PoLine::Continuation(_, _, s) => {
+                    string.push_str(&s);
+                }
+                _ => {
+                    unreachable!();
+                }
             }
         }
 
@@ -47,30 +55,26 @@ impl<'p, R: Read> Decoder for Peekable<LineIter<'p, R>> {
 
     fn expected(&mut self, exp: &str) -> Result<(), Error> {
         match self.peek() {
-            None|Some(Ok(PoLine::Blank)) => Ok(()),
-            Some(Err(_)) => if let Some(Err(err)) = self.next() {
-                Err(err)
-            } else {
-                unreachable!();
+            None | Some(Ok(PoLine::Blank)) => Ok(()),
+            Some(Err(_)) => {
+                if let Some(Err(err)) = self.next() {
+                    Err(err)
+                } else {
+                    unreachable!();
+                }
             }
-            Some(Ok(PoLine::Message(n, p, ..))) => {
-                Err(Error::Parse(*n, p.clone(), exp.to_string()))
-            }
-            Some(Ok(PoLine::Continuation(n, ..))) => {
-                Err(Error::Parse(*n, String::from("\""), exp.to_string()))
-            }
-            Some(Ok(PoLine::Comment(n, c, ..))) => {
-                Err(Error::Parse(*n, format!("#{}", c), exp.to_string()))
-            }
+            Some(Ok(PoLine::Message(n, p, ..))) => Err(Error::Parse(*n, p.clone(), exp.to_string())),
+            Some(Ok(PoLine::Continuation(n, ..))) => Err(Error::Parse(*n, String::from("\""), exp.to_string())),
+            Some(Ok(PoLine::Comment(n, c, ..))) => Err(Error::Parse(*n, format!("#{}", c), exp.to_string())),
         }
     }
 }
 
 #[cfg(test)]
 pub(crate) mod tests {
-    use super::*;
     use super::super::PoParser;
-    use std::collections::{HashMap, hash_map::Entry};
+    use super::*;
+    use std::collections::{hash_map::Entry, HashMap};
 
     type Str = &'static str;
 
@@ -111,7 +115,7 @@ pub(crate) mod tests {
             }
         }
 
-        pub(crate) fn with_values<I: IntoIterator<Item=(Str, TestAction<Str>)>>(values: I) -> TestDecoder {
+        pub(crate) fn with_values<I: IntoIterator<Item = (Str, TestAction<Str>)>>(values: I) -> TestDecoder {
             let mut res = TestDecoder::new();
 
             res.push_values(values);
@@ -126,10 +130,11 @@ pub(crate) mod tests {
             self.command = command;
         }
 
-        pub(crate) fn push_values<I: IntoIterator<Item=(Str, TestAction<Str>)>>(&mut self, values: I) {
+        pub(crate) fn push_values<I: IntoIterator<Item = (Str, TestAction<Str>)>>(&mut self, values: I) {
             match self.values.as_mut() {
                 None => {
-                    self.values.replace(values.into_iter().map(|(k, v)| (k.to_string(), v.convert())).collect());
+                    self.values
+                        .replace(values.into_iter().map(|(k, v)| (k.to_string(), v.convert())).collect());
                 }
                 Some(self_values) => {
                     self_values.extend(values.into_iter().map(|(k, v)| (k.to_string(), v.convert())));
@@ -162,7 +167,7 @@ pub(crate) mod tests {
             match self.command.as_str() {
                 "@DoError" => self.set_error(Error::Unexpected(210, String::from("From command `@DoError`"))),
                 "@DoInc" => self.inc(),
-                _ => ()
+                _ => (),
             }
 
             match self.values.as_mut() {
@@ -173,17 +178,17 @@ pub(crate) mod tests {
                         TestAction::ActOk(v) => Ok(Some(v.clone())),
                         TestAction::ActErr(_) => Err(match entry.remove_entry().1 {
                             TestAction::ActErr(err) => err,
-                            _ => unreachable!()
+                            _ => unreachable!(),
                         }),
                         TestAction::ActDelayed(_) => Ok(match entry.remove_entry().1 {
                             TestAction::ActDelayed(err) => {
                                 self.set_error(err);
                                 None
                             }
-                            _ => unreachable!()
+                            _ => unreachable!(),
                         }),
-                    }
-                }
+                    },
+                },
             }
         }
 
@@ -212,9 +217,9 @@ pub(crate) mod tests {
                     assert_eq!(tag, "msgid");
                     assert_eq!(string, "line 1");
                 }
-                r => panic!("Unexpected line: {:?}", r)
-            }
-            r => panic!("Unexpected result: {:?}", r)
+                r => panic!("Unexpected line: {:?}", r),
+            },
+            r => panic!("Unexpected result: {:?}", r),
         }
 
         iter.next();
@@ -226,22 +231,25 @@ pub(crate) mod tests {
                     assert_eq!(tag, "msgstr");
                     assert_eq!(string, "line 2");
                 }
-                r => panic!("Unexpected line: {:?}", r)
-            }
-            r => panic!("Unexpected result: {:?}", r)
+                r => panic!("Unexpected line: {:?}", r),
+            },
+            r => panic!("Unexpected result: {:?}", r),
         }
 
         iter.next();
         match fetch_next(&mut iter) {
             Ok(None) => (),
-            r => panic!("Unexpected result: {:?}", r)
+            r => panic!("Unexpected result: {:?}", r),
         }
 
         let mut iter = LineIter::new("msgid \"line 1".as_bytes(), &parser).peekable();
 
         match fetch_next(&mut iter) {
-            Err(err) => assert_eq!(format!("{:?}", err), String::from("Parse error at line 2, got ‘msgid \"line 1’")),
-            r => panic!("Unexpected result: {:?}", r)
+            Err(err) => assert_eq!(
+                format!("{:?}", err),
+                String::from("Parse error at line 2, got ‘msgid \"line 1’")
+            ),
+            r => panic!("Unexpected result: {:?}", r),
         }
     }
 
@@ -280,7 +288,7 @@ pub(crate) mod tests {
 
             match lines.parse_msg("msgid", &unit) {
                 Err(err) => assert_eq!(format!("{:?}", err), "Parse error at line 2, got ‘msgid \"this’"),
-                v => panic!("Unexpected result for the first error: {:?}", v)
+                v => panic!("Unexpected result for the first error: {:?}", v),
             }
         }
 
@@ -291,7 +299,7 @@ pub(crate) mod tests {
 
             match lines.parse_msg("msgid", &unit) {
                 Err(err) => assert_eq!(format!("{:?}", err), "Parse error at line 3, got ‘\" is bad’"),
-                v => panic!("Unexpected result for the second error: {:?}", v)
+                v => panic!("Unexpected result for the second error: {:?}", v),
             }
         }
     }
@@ -316,7 +324,7 @@ pub(crate) mod tests {
 
             match lines.expected("") {
                 Err(err) => assert_eq!(format!("{:?}", err), String::from("Parse error at line 2, got ‘---’")),
-                r => panic!("Unexpected result: {:?}", r)
+                r => panic!("Unexpected result: {:?}", r),
             }
         }
 
@@ -330,7 +338,7 @@ pub(crate) mod tests {
 
                     assert_eq!(format!("{:?}", err), msg);
                 }
-                r => panic!("Unexpected result: {:?}", r)
+                r => panic!("Unexpected result: {:?}", r),
             }
 
             lines.next();
@@ -340,7 +348,7 @@ pub(crate) mod tests {
 
                     assert_eq!(format!("{:?}", err), msg);
                 }
-                r => panic!("Unexpected result: {:?}", r)
+                r => panic!("Unexpected result: {:?}", r),
             }
 
             lines.next();
@@ -350,7 +358,7 @@ pub(crate) mod tests {
 
                     assert_eq!(format!("{:?}", err), msg);
                 }
-                r => panic!("Unexpected result: {:?}", r)
+                r => panic!("Unexpected result: {:?}", r),
             }
         }
     }

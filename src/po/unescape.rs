@@ -1,4 +1,4 @@
-use regex::{Regex, Captures};
+use regex::{Captures, Regex};
 
 pub(super) struct Unescaper {
     re: Regex,
@@ -6,6 +6,7 @@ pub(super) struct Unescaper {
 }
 
 impl Unescaper {
+    #[rustfmt::skip]
     pub(super) fn new() -> Unescaper {
         Unescaper {
             re: Regex::new(r#"\\([rtn"\\])"#).unwrap(),
@@ -33,16 +34,15 @@ impl Unescaper {
     }
 
     pub(super) fn unescape(&self, text: &str) -> String {
-        self.re.replace_all(
-            text,
-            |d: &Captures| -> String {
+        self.re
+            .replace_all(text, |d: &Captures| -> String {
                 d.get(1)
                     .map(|m| m.as_str())
                     .map(|key| key.chars().next().and_then(|ch| self.replace_char(ch)).unwrap_or(key))
                     .unwrap_or_default()
                     .to_string()
-            },
-        ).to_string()
+            })
+            .to_string()
     }
 }
 
@@ -70,7 +70,10 @@ mod tests {
     fn test_func_unescape() {
         let unesc = Unescaper::new();
 
-        assert_eq!(unesc.unescape(r"Hello\nworld\r\n\t!"), String::from("Hello\nworld\r\n\t!"));
+        assert_eq!(
+            unesc.unescape(r"Hello\nworld\r\n\t!"),
+            String::from("Hello\nworld\r\n\t!")
+        );
         assert_eq!(unesc.unescape(r#"Sub\"\tstring"#), String::from("Sub\"\tstring"));
         assert_eq!(unesc.unescape(r"My\\Path: \tValue"), String::from("My\\Path: \tValue"));
     }

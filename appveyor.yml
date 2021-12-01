@@ -1,3 +1,0 @@
-version: 1.0.1.{build}
-build_script:
-  - sh: cargo test

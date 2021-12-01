@@ -1,4 +1,4 @@
-use super::{Message, State, note::Note, comment::Comment};
+use super::{comment::Comment, note::Note, Message, State};
 use std::collections::HashSet;
 
 /// Elementary unit of translation.
@@ -53,7 +53,7 @@ impl Unit {
 
     /// Get the flags
     pub fn flags(&self) -> &HashSet<String> {
-        return &self.flags
+        return &self.flags;
     }
 
     /// Get the notes/comments.
@@ -89,8 +89,8 @@ impl Unit {
 
 #[cfg(test)]
 mod tests {
-    use crate::Origin;
     use super::*;
+    use crate::Origin;
 
     impl Unit {
         pub(crate) fn for_tests_empty() -> Self {
@@ -101,7 +101,8 @@ mod tests {
                 .map(|i| Note::new(Origin::Translator, format!("empty translator note {}", i)))
                 .collect();
 
-            res.locations = vec![11, 22, 33].into_iter()
+            res.locations = vec![11, 22, 33]
+                .into_iter()
                 .enumerate()
                 .map(|(i, n)| format!("EmptyFile{}:{}", i + 1, n))
                 .collect();
@@ -129,10 +130,15 @@ mod tests {
             res.comments = (1..=3).map(|i| Comment::new('X', format!("Comment {}", i))).collect();
             res.notes = (1..=2)
                 .map(|i| Note::new(Origin::Translator, format!("translator note {}", i)))
-                .chain((1..=2).into_iter().map(|i| Note::new(Origin::Developer, format!("developper note {}", i))))
+                .chain(
+                    (1..=2)
+                        .into_iter()
+                        .map(|i| Note::new(Origin::Developer, format!("developper note {}", i))),
+                )
                 .collect();
 
-            res.locations = vec![12, 34, 56].into_iter()
+            res.locations = vec![12, 34, 56]
+                .into_iter()
                 .enumerate()
                 .map(|(i, n)| format!("File{}:{}", i + 1, n))
                 .collect();
@@ -254,11 +260,14 @@ mod tests {
         assert!(Unit::default().flags().is_empty(), "Empty unit should have no location");
         assert!(!locations.is_empty(), "Normal unit should have locations");
         assert_eq!(locations.len(), 3);
-        assert_eq!(locations, &vec![
-            String::from("File1:12"),
-            String::from("File2:34"),
-            String::from("File3:56"),
-        ]);
+        assert_eq!(
+            locations,
+            &vec![
+                String::from("File1:12"),
+                String::from("File2:34"),
+                String::from("File3:56"),
+            ]
+        );
     }
 
     #[test]
@@ -266,14 +275,20 @@ mod tests {
         let unit = Unit::for_tests_normal();
         let comments = unit.comments();
 
-        assert!(Unit::default().comments().is_empty(), "Empty unit should have no comment");
+        assert!(
+            Unit::default().comments().is_empty(),
+            "Empty unit should have no comment"
+        );
         assert!(!comments.is_empty(), "Normal unit should have comments");
         assert_eq!(comments.len(), 3);
-        assert_eq!(comments, &vec![
-            Comment::new('X', String::from("Comment 1")),
-            Comment::new('X', String::from("Comment 2")),
-            Comment::new('X', String::from("Comment 3")),
-        ]);
+        assert_eq!(
+            comments,
+            &vec![
+                Comment::new('X', String::from("Comment 1")),
+                Comment::new('X', String::from("Comment 2")),
+                Comment::new('X', String::from("Comment 3")),
+            ]
+        );
     }
 
     #[test]
@@ -327,18 +342,20 @@ mod tests {
     fn test_trait_debug() {
         assert_eq!(
             format!("{:?}", Unit::default()),
-            String::from("Unit { \
-                context: None, \
-                message: Simple { id: \"\", text: None }, \
-                prev_context: None, \
-                prev_message: Simple { id: \"\", text: None }, \
-                flags: {}, \
-                notes: [], \
-                locations: [], \
-                comments: [], \
-                state: Empty, \
-                obsolete: false \
-            }"),
+            String::from(
+                "Unit { \
+                    context: None, \
+                    message: Simple { id: \"\", text: None }, \
+                    prev_context: None, \
+                    prev_message: Simple { id: \"\", text: None }, \
+                    flags: {}, \
+                    notes: [], \
+                    locations: [], \
+                    comments: [], \
+                    state: Empty, \
+                    obsolete: false \
+                }"
+            ),
         )
     }
 }

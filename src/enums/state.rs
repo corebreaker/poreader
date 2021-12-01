@@ -16,7 +16,9 @@ pub enum State {
 }
 
 impl Default for State {
-    fn default() -> State { State::Empty }
+    fn default() -> State {
+        State::Empty
+    }
 }
 
 #[cfg(test)]
