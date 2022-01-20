@@ -1,6 +1,6 @@
 [package]
 name = "poreader"
-version = "1.0.5"
+version = "1.0.6"
 edition = "2021"
 description = "Read translation catalogs in PO format."
 authors = ["Frédéric Meyer <frederic.meyer.77@gmail.com>"]
@@ -16,9 +16,9 @@ travis-ci = { repository = "coreabreaker/poreader" }
 appveyor = { repository = "coreabreaker/poreader" }
 
 [build-dependencies]
-lalrpop = "~0.19.6"
+lalrpop = "~0.19.7"
 
 [dependencies]
-lalrpop-util = { version = "~0.19.6", features = ["lexer"] }
+lalrpop-util = { version = "~0.19.7", features = ["lexer"] }
 locale_config = "^0.3.0"
 regex = "^1.5.4"
