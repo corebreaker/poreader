@@ -29,6 +29,7 @@ impl Default for PoLine {
     }
 }
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -73,3 +74,4 @@ mod tests {
         assert_eq!(PoLine::new_continuation().line(), 3);
     }
 }
+// no-coverage:stop

@@ -1,3 +1,4 @@
+// no-coverage:start
 use locale_config::LanguageRange;
 use poreader::{error::Error, note::Note, CatalogueReader, Message, Origin, PoParser, State};
 
@@ -183,3 +184,5 @@ fn integration_test() -> Result<(), Error> {
 
     Ok(())
 }
+
+// no-coverage:stop

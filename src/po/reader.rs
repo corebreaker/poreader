@@ -239,6 +239,7 @@ impl<'p, R: Read> CatalogueReader for PoReader<'p, R> {
     }
 }
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -857,3 +858,4 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
         }
     }
 }
+// no-coverage:stop

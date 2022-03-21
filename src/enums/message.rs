@@ -107,6 +107,7 @@ impl PartialEq for Message {
 
 impl Eq for Message {}
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -382,3 +383,4 @@ mod tests {
         assert_eq!(msg.plural(), Some(&plural));
     }
 }
+// no-coverage:stop

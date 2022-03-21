@@ -8,6 +8,7 @@ pub enum Origin {
     Translator,
 }
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -33,3 +34,4 @@ mod tests {
         assert_eq!(m.get(&Origin::Developer), Some(&123));
     }
 }
+// no-coverage:stop

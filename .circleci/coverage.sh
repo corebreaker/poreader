@@ -19,6 +19,9 @@ if cargo +nightly test --lib; then
     -b target \
     -t coveralls+ \
     --token $COVERALLS_REPO_TOKEN \
+    --excl-line 'unreachable' \
+    --excl-start '// no-coverage:start' \
+    --excl-stop '// no-coverage:stop' \
     --ignore '*/.cargo/*' \
     --ignore '*/target/debug/build/*' \
     --llvm \

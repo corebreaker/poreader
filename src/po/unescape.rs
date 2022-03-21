@@ -46,6 +46,7 @@ impl Unescaper {
     }
 }
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -78,3 +79,4 @@ mod tests {
         assert_eq!(unesc.unescape(r"My\\Path: \tValue"), String::from("My\\Path: \tValue"));
     }
 }
+// no-coverage:stop

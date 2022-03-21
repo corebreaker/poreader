@@ -70,6 +70,7 @@ impl<'p, R: Read> Decoder for Peekable<LineIter<'p, R>> {
     }
 }
 
+// no-coverage:start
 #[cfg(test)]
 pub(crate) mod tests {
     use super::super::PoParser;
@@ -363,3 +364,4 @@ pub(crate) mod tests {
         }
     }
 }
+// no-coverage:stop
