@@ -1,6 +1,6 @@
 [package]
 name = "poreader"
-version = "1.0.6"
+version = "1.1.0"
 edition = "2021"
 description = "Read translation catalogs in PO format."
 authors = ["Frédéric Meyer <frederic.meyer.77@gmail.com>"]
@@ -10,10 +10,6 @@ repository = "https://github.com/corebreaker/poreader"
 readme = "README.md"
 keywords = ["translate", "po", "gettext", "file"]
 categories = ["internationalization", "text-processing"]
-
-[badges]
-travis-ci = { repository = "coreabreaker/poreader" }
-appveyor = { repository = "coreabreaker/poreader" }
 
 [build-dependencies]
 lalrpop = "~0.19.7"
