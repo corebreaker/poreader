@@ -50,6 +50,7 @@ impl PluralForms {
     }
 }
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -188,3 +189,4 @@ mod tests {
         assert_eq!(copy, forms);
     }
 }
+// no-coverage:stop

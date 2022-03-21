@@ -21,6 +21,7 @@ impl Default for State {
     }
 }
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -52,3 +53,4 @@ mod tests {
         assert_eq!(m.get(&State::Empty), Some(&123));
     }
 }
+// no-coverage:stop

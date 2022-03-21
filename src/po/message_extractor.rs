@@ -135,6 +135,7 @@ impl<'r, D: Decoder> MessageExtractor<'r, D> {
     }
 }
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::super::decoder::tests::{TestAction::*, TestDecoder};
@@ -706,3 +707,4 @@ mod tests {
         }
     }
 }
+// no-coverage:stop

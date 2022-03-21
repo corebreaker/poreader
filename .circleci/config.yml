@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   checks:
     docker:
-      - image: cimg/rust:1.56.1-node
+      - image: cimg/rust:1.59-node
     steps:
       - checkout
       - run:
@@ -12,7 +12,7 @@ jobs:
 
   coverage:
     docker:
-      - image: corebreaker/rust-devtools-circleci:rust1.56.1-v0.1.0
+      - image: corebreaker/rust-devtools-circleci:rust1.59-v0.2.3
     steps:
       - checkout
       - run:
@@ -23,20 +23,15 @@ jobs:
           command: "coveralls -D target -i target/coverage/coveralls.json circleci"
       - store_artifacts:
           path: target/coverage
+
   test:
     docker:
-      - image: cimg/rust:1.56.1
+      - image: cimg/rust:1.59
     steps:
-      - restore_cache:
-          key: project-cache
       - checkout
       - run:
           name: Run tests
-          command: "cargo test"
-      - save_cache:
-          key: project-cache
-          paths:
-            - "~/.cargo"
+          command: "CARGO_NET_GIT_FETCH_WITH_CLI=true cargo test"
 
 workflows:
   coverage:

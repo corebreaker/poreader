@@ -87,6 +87,7 @@ impl Unit {
     }
 }
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -359,3 +360,4 @@ mod tests {
         )
     }
 }
+// no-coverage:stop

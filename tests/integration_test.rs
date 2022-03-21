@@ -1,5 +1,6 @@
+// no-coverage:start
 use locale_config::LanguageRange;
-use poreader::{error::Error, note::Note, CatalogueReader, Message, Origin, PoParser, State};
+use poreader::{error::Error, header::Header, note::Note, CatalogueReader, Message, Origin, PoParser, State};
 
 static SAMPLE_PO: &'static str = r###"
 msgid ""
@@ -10,9 +11,13 @@ msgstr ""
 "Language-Team: French\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
+"Header1: Value1\n"
+"Header2: ValueX\n"
+"Header1: Value2\n"
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3;\n"
+"Plural-Forms: plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 msgid "Simple message"
 msgstr "Un simple message"
@@ -43,6 +48,12 @@ msgstr[2] "Des messages avec plusieurs traductions"
 
 "###;
 
+macro_rules! a_str {
+    ($v:literal) => {
+        String::from($v)
+    };
+}
+
 #[test]
 fn integration_test() -> Result<(), Error> {
     let input = SAMPLE_PO.as_bytes();
@@ -53,8 +64,34 @@ fn integration_test() -> Result<(), Error> {
     assert_eq!(reader.target_language(), &lang);
     assert_eq!(
         reader.header_properties().get("Project-Id-Version"),
-        Some(&String::from("poreader test"))
+        Some(&vec![a_str!("poreader test")])
     );
+
+    {
+        assert_eq!(reader.header_properties().get("Header0"), None);
+        assert_eq!(
+            reader.header_properties().get("Header1"),
+            Some(&vec![a_str!("Value1"), a_str!("Value2")])
+        );
+        assert_eq!(reader.header_properties().get("Header2"), Some(&vec![a_str!("ValueX")]));
+    }
+
+    {
+        let val = reader
+            .header_property_list()
+            .iter()
+            .filter(|h| h.name().starts_with("Header"))
+            .cloned()
+            .collect::<Vec<_>>();
+
+        let exp = vec![
+            Header::new(a_str!("Header1"), a_str!("Value1")),
+            Header::new(a_str!("Header2"), a_str!("ValueX")),
+            Header::new(a_str!("Header1"), a_str!("Value2")),
+        ];
+
+        assert_eq!(val, exp);
+    }
 
     {
         let u = reader.next().unwrap().unwrap();
@@ -109,15 +146,12 @@ fn integration_test() -> Result<(), Error> {
         assert_eq!(
             u.notes(),
             &vec![
-                Note::new(Origin::Developer, String::from("Extracted comment")),
-                Note::new(Origin::Translator, String::from("Translator comment")),
+                Note::new(Origin::Developer, a_str!("Extracted comment")),
+                Note::new(Origin::Translator, a_str!("Translator comment")),
             ]
         );
 
-        assert_eq!(
-            u.locations(),
-            &vec![String::from("Location:42"), String::from("Another:69"),]
-        );
+        assert_eq!(u.locations(), &vec![a_str!("Location:42"), a_str!("Another:69"),]);
 
         assert!(!u.is_translated(), "It should not be translated");
         assert!(!u.is_obsolete(), "It should not be obsolete");
@@ -128,7 +162,7 @@ fn integration_test() -> Result<(), Error> {
         let u = reader.next().unwrap().unwrap();
         let empty_msg = Message::default();
         let msg = Message::Simple {
-            id: String::from("Untranslated message"),
+            id: a_str!("Untranslated message"),
             text: None,
         };
 
@@ -161,8 +195,8 @@ fn integration_test() -> Result<(), Error> {
         let u = reader.next().unwrap().unwrap();
         let empty_msg = Message::default();
         let msg = Message::Simple {
-            id: String::from("Obsolete message"),
-            text: Some(String::from("Message obsolète")),
+            id: a_str!("Obsolete message"),
+            text: Some(a_str!("Message obsolète")),
         };
 
         assert!(u.is_obsolete(), "This entry should be obsolete");
@@ -175,7 +209,7 @@ fn integration_test() -> Result<(), Error> {
         assert_eq!(u.state(), State::Final);
         assert_eq!(
             u.notes().as_slice(),
-            &[Note::new(Origin::Translator, String::from("Another comment"))]
+            &[Note::new(Origin::Translator, a_str!("Another comment"))]
         );
     }
 
@@ -183,3 +217,5 @@ fn integration_test() -> Result<(), Error> {
 
     Ok(())
 }
+
+// no-coverage:stop

@@ -179,6 +179,7 @@ impl PartialEq<Self> for Node {
 
 impl Eq for Node {}
 
+// no-coverage:start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -454,3 +455,4 @@ mod tests {
         TestCase::make_tests().into_iter().for_each(|t| t.run());
     }
 }
+// no-coverage:stop

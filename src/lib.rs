@@ -64,6 +64,7 @@ mod po;
 
 pub mod comment;
 pub mod error;
+pub mod header;
 pub mod note;
 pub mod plural;
 pub mod unit;
@@ -81,9 +82,27 @@ use std::collections::HashMap;
 /// Defines common interface of catalogue readers. Read the units by simply iterating over the
 /// reader. The other methods are for the important metadata.
 pub trait CatalogueReader: Iterator<Item = Result<unit::Unit, error::Error>> {
+    /// The target language of the translation
     fn target_language(&self) -> &LanguageRange<'static>;
+
+    /// Notes in the header entry
     fn header_notes(&self) -> &Vec<note::Note>;
+
+    /// Comments in the header entry
     fn header_comments(&self) -> &Vec<comment::Comment>;
-    fn header_properties(&self) -> &HashMap<String, String>;
+
+    /// Header properties as a map
+    ///
+    /// An header may appear several times.
+    /// To obtains one value, you can join values with a separator like pipe character (`|`)
+    fn header_properties(&self) -> &HashMap<String, Vec<String>>;
+
+    /// Header properties as a list
+    ///
+    /// As an header may appear several times, you can list it by filter the returned vector.
+    /// All occurrences of a same header may not be consecutive,
+    /// the returned list contain list of header in the same order than in the file.
+    fn header_property_list(&self) -> &Vec<header::Header>;
+
     // TODO: More attributes, possibly a generic API
 }
