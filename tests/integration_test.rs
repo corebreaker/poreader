@@ -1,7 +1,7 @@
 // no-coverage:start
-use poreader::{error::Error, note::Note, header::Header, CatalogueReader, Message, Origin, PoParser, State};
-use locale_config::LanguageRange;
 use itertools::Itertools;
+use locale_config::LanguageRange;
+use poreader::{error::Error, header::Header, note::Note, CatalogueReader, Message, Origin, PoParser, State};
 
 static SAMPLE_PO: &'static str = r###"
 msgid ""
@@ -50,7 +50,9 @@ msgstr[2] "Des messages avec plusieurs traductions"
 "###;
 
 macro_rules! a_str {
-    ($v:literal) => {String::from($v)};
+    ($v:literal) => {
+        String::from($v)
+    };
 }
 
 #[test]
@@ -68,12 +70,17 @@ fn integration_test() -> Result<(), Error> {
 
     {
         assert_eq!(reader.header_properties().get("Header0"), None);
-        assert_eq!(reader.header_properties().get("Header1"), Some(&vec![a_str!("Value1"), a_str!("Value2")]));
+        assert_eq!(
+            reader.header_properties().get("Header1"),
+            Some(&vec![a_str!("Value1"), a_str!("Value2")])
+        );
         assert_eq!(reader.header_properties().get("Header2"), Some(&vec![a_str!("ValueX")]));
     }
 
     {
-        let val = reader.header_property_list().iter()
+        let val = reader
+            .header_property_list()
+            .iter()
             .filter(|h| h.name().starts_with("Header"))
             .cloned()
             .collect_vec();
@@ -145,10 +152,7 @@ fn integration_test() -> Result<(), Error> {
             ]
         );
 
-        assert_eq!(
-            u.locations(),
-            &vec![a_str!("Location:42"), a_str!("Another:69"),]
-        );
+        assert_eq!(u.locations(), &vec![a_str!("Location:42"), a_str!("Another:69"),]);
 
         assert!(!u.is_translated(), "It should not be translated");
         assert!(!u.is_obsolete(), "It should not be obsolete");

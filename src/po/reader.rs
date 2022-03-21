@@ -1,15 +1,6 @@
 use super::{line::PoLine, line_iter::LineIter, parser::PoParser, MessageExtractor as Extractor};
-use crate::{
-    note::Note,
-    unit::Unit,
-    error::Error,
-    header::Header,
-    comment::Comment,
-    plural::PluralForms,
-    CatalogueReader,
-    Origin,
-    State,
-};
+use crate::{comment::Comment, error::Error, header::Header, note::Note, plural::PluralForms, unit::Unit};
+use crate::{CatalogueReader, Origin, State};
 
 use itertools::Itertools;
 use locale_config::LanguageRange;
@@ -192,7 +183,10 @@ impl<'p, R: Read> PoReader<'p, R> {
                     let header = Header::new(key.to_owned(), val.to_owned());
 
                     self.header_property_list.push(header);
-                    self.header_properties.entry(key.to_owned()).or_default().push(val.to_owned());
+                    self.header_properties
+                        .entry(key.to_owned())
+                        .or_default()
+                        .push(val.to_owned());
                 }
             }
 

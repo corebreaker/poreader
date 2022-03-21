@@ -62,12 +62,12 @@ extern crate regex;
 mod enums;
 mod po;
 
-pub mod error;
-pub mod note;
-pub mod unit;
-pub mod plural;
-pub mod header;
 pub mod comment;
+pub mod error;
+pub mod header;
+pub mod note;
+pub mod plural;
+pub mod unit;
 
 pub use self::{
     enums::{Message, Origin, State},
