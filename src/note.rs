@@ -1,5 +1,8 @@
 use super::Origin;
 
+/// Note from the translator or the developer
+///
+/// It contains the origin and its value
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Note {
     origin: Origin,

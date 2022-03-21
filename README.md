@@ -1,31 +1,29 @@
-[![Crates.io Version](https://img.shields.io/crates/v/poreader.svg)](https://crates.io/crates/poreader)
-[![Docs.rs](https://docs.rs/poreader/badge.svg)](https://docs.rs/poreader/)
-[![CircleCI](https://circleci.com/gh/corebreaker/poreader/tree/main.svg?style=shield)](https://circleci.com/gh/corebreaker/poreader/tree/main)
-[![Coverage Status](https://coveralls.io/repos/github/corebreaker/poreader/badge.svg?branch=main)](https://coveralls.io/github/corebreaker/poreader?branch=main)
+[![Crates.io]](https://crates.io/crates/poreader)
+[![Docs.rs](https://img.shields.io/docsrs/poreader?style=for-the-badge)](https://docs.rs/poreader/)
+[![CircleCI]](https://circleci.com/gh/corebreaker/poreader/tree/main)
+[![Coverage Status]](https://coveralls.io/github/corebreaker/poreader?branch=main)
 
 # `poreader`
 
-Rust library for reading, and in future writing, translation catalogs in
-Uniforum/Gettext PO and (in future) Xliff formats. Similar to the
-[translate.storage] package in Python [Translate Toolkit].
+Rust library for reading translation catalogs in Uniforum/Gettext PO.
+Similar to the [translate.storage] package in Python [Translate Toolkit].
 
-Only PO and Xliff are planned to be supported. For anything else, just convert
-it with [Translate Toolkit]. There is no point in replacing that excellent
-library; the main reason for Rust parser and writer is to them as part of build
-process of Rust programs, especially in procedural macros, which need to be
-written in Rust.
+Only PO and Xliff are planned to be supported. For anything else, just convert it with [Translate Toolkit].
+There is no point in replacing that excellent library;
+the main reason for Rust parser and writer is to them as part of build
+process of Rust programs, especially in procedural macros, which need to be written in Rust.
 
 ## Documentation
 
-On [Docs.rs](https://docs.rs/poreader/).
+On [Docs.rs].
 
 ## Installation
 
-It uses [Cargo](http://crates.io), Rust's package manager. You can depend on this library by adding `poreader` to your Cargo dependencies:
+It uses [Cargo], Rust's package manager. You can depend on this library by adding `poreader` to your Cargo dependencies:
 
 ```toml
 [dependencies]
-poreader = "~1.0"
+poreader = "~1.1"
 ```
 
 Or, to use the Git repo directly:
@@ -81,6 +79,10 @@ fn main() -> Result<()> {
 }
 ```
 
-
+[Cargo]: http://crates.io
+[Docs.rs]: https://docs.rs/poreader/
 [translate.storage]: http://docs.translatehouse.org/projects/translate-toolkit/en/latest/api/storage.html
-[Translate Toolkit]: http://docs.translatehouse.org/projects/translate-toolkit/
+[Translate Toolkit]: https://pypi.org/project/translate-toolkit/
+[Crates.io]: https://img.shields.io/crates/v/poreader?style=for-the-badge
+[CircleCI]: https://img.shields.io/circleci/build/github/corebreaker/poreader/main?style=for-the-badge
+[Coverage Status]: https://img.shields.io/coveralls/github/corebreaker/poreader?style=for-the-badge
