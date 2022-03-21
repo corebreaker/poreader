@@ -1,5 +1,4 @@
 // no-coverage:start
-use itertools::Itertools;
 use locale_config::LanguageRange;
 use poreader::{error::Error, header::Header, note::Note, CatalogueReader, Message, Origin, PoParser, State};
 
@@ -83,7 +82,7 @@ fn integration_test() -> Result<(), Error> {
             .iter()
             .filter(|h| h.name().starts_with("Header"))
             .cloned()
-            .collect_vec();
+            .collect::<Vec<_>>();
 
         let exp = vec![
             Header::new(a_str!("Header1"), a_str!("Value1")),

@@ -17,5 +17,4 @@ lalrpop = "~0.19.7"
 [dependencies]
 lalrpop-util = { version = "~0.19.7", features = ["lexer"] }
 locale_config = "^0.3.0"
-itertools = "~0.10.3"
 regex = "^1.5.5"

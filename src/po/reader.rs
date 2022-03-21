@@ -2,7 +2,6 @@ use super::{line::PoLine, line_iter::LineIter, parser::PoParser, MessageExtracto
 use crate::{comment::Comment, error::Error, header::Header, note::Note, plural::PluralForms, unit::Unit};
 use crate::{CatalogueReader, Origin, State};
 
-use itertools::Itertools;
 use locale_config::LanguageRange;
 use std::{
     collections::HashMap,
@@ -200,7 +199,7 @@ impl<'p, R: Read> PoReader<'p, R> {
                     .unwrap_or_else(|_| LanguageRange::invariant());
             }
 
-            if let Some(forms) = self.header_properties.get("Plural-Forms").map(|v| v.iter().join(" ")) {
+            if let Some(forms) = self.header_properties.get("Plural-Forms").map(|v| v.join(" ")) {
                 if !forms.is_empty() {
                     self.plural_forms.replace(Rc::new(PluralForms::parse(&forms, parser)?));
                 }
@@ -390,7 +389,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                         ("Plural-Forms", vec![definition]),
                     ]
                     .into_iter()
-                    .map(|(k, v)| (String::from(k), v.into_iter().map(String::from).collect_vec()))
+                    .map(|(k, v)| (String::from(k), v.into_iter().map(String::from).collect::<Vec<_>>()))
                     .collect::<HashMap<_, _>>()
                 );
 

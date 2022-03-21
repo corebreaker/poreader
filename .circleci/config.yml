@@ -28,16 +28,10 @@ jobs:
     docker:
       - image: cimg/rust:1.59
     steps:
-      - restore_cache:
-          key: project-cache
       - checkout
       - run:
           name: Run tests
           command: "cargo test"
-      - save_cache:
-          key: project-cache
-          paths:
-            - "~/.cargo"
 
 workflows:
   coverage:
