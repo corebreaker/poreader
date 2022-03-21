@@ -5,6 +5,9 @@ jobs:
     docker:
       - image: cimg/rust:1.59-node
     steps:
+      - run:
+          name: Configure Git
+          command: "git config --global --unset url.ssh://git@github.com:.insteadof"
       - checkout
       - run:
           name: Check formatting
@@ -14,6 +17,9 @@ jobs:
     docker:
       - image: corebreaker/rust-devtools-circleci:rust1.59-v0.2.3
     steps:
+      - run:
+          name: Configure Git
+          command: "git config --global --unset url.ssh://git@github.com:.insteadof"
       - checkout
       - run:
           name: Make coverage
@@ -28,6 +34,9 @@ jobs:
     docker:
       - image: cimg/rust:1.59
     steps:
+      - run:
+          name: Configure Git
+          command: "git config --global --unset url.ssh://git@github.com:.insteadof"
       - checkout
       - run:
           name: Run tests
