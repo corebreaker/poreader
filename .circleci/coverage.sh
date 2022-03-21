@@ -5,6 +5,7 @@ cd "$(dirname $0)/.." || exit
 export CARGO_INCREMENTAL=0
 export RUSTFLAGS="-Zinstrument-coverage -Zprofile -Ccodegen-units=1 -Copt-level=0 -Coverflow-checks=off"
 export LLVM_PROFILE_FILE="default.profraw"
+export CARGO_NET_GIT_FETCH_WITH_CLI=true
 
 echo 'Run tests'
 cargo +nightly test --lib
