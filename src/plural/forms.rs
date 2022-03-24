@@ -188,5 +188,16 @@ mod tests {
 
         assert_eq!(copy, forms);
     }
+
+    #[test]
+    fn test_erro_parse_on_nplurals() {
+        let parser = PoParser::new();
+        let res = PluralForms::parse("nplurals=wrong; plural=0", &parser);
+
+        assert!(
+            res.is_err(),
+            "The parser should return an error for parsing of `nplurals`"
+        );
+    }
 }
 // no-coverage:stop

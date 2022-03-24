@@ -412,6 +412,15 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
     }
 
     #[test]
+    fn test_func_new_with_error() {
+        let source = "msgid: \"--";
+        let parser = PoParser::new();
+        let reader = PoReader::new(source.as_bytes(), &parser);
+
+        assert!(reader.is_err(), "On bad entry, the reader should return an error");
+    }
+
+    #[test]
     fn test_func_read_line() {
         let parser = PoParser::new();
 
