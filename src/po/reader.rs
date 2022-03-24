@@ -764,10 +764,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
         let reader = PoReader::new(source.as_bytes(), &parser);
 
         match reader {
-            Err(err) => assert_eq!(
-                format!("{:?}", err),
-                "Parse error at line 2, got ‘msgid: \"--’"
-            ),
+            Err(err) => assert_eq!(format!("{:?}", err), "Parse error at line 2, got ‘msgid: \"--’"),
             Ok(v) => panic!(
                 "Unexpected result: forms={:?}, notes={:?}, headers={:?}, next={:?}",
                 v.plural_forms, v.header_notes, v.header_properties, v.next_unit,
