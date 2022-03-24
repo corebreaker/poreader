@@ -110,10 +110,7 @@ mod tests {
         assert_eq!(plural.values, vec![String::from(SINGULAR_FR), String::from(PLURAL_FR)]);
         assert!(plural.forms.is_some(), "Form should be a `Some`");
         assert_eq!(plural.forms.as_ref().map(|v| v.get_count()), Some(2));
-        assert_eq!(
-            plural.forms.as_ref().map(|v| v.get_formula()),
-            Some("n>1")
-        );
+        assert_eq!(plural.forms.as_ref().map(|v| v.get_formula()), Some("n>1"));
 
         assert_eq!(
             format!("{:?}", plural),

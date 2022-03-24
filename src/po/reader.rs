@@ -1,5 +1,7 @@
 use super::{line::PoLine, line_iter::LineIter, parser::PoParser, MessageExtractor as Extractor};
-use crate::{comment::Comment, error::Error, note::Note, plural::PluralForms, unit::Unit, CatalogueReader, Origin, State};
+use crate::{
+    comment::Comment, error::Error, note::Note, plural::PluralForms, unit::Unit, CatalogueReader, Origin, State,
+};
 
 use locale_config::LanguageRange;
 use std::{
@@ -186,7 +188,8 @@ impl<'p, R: Read> PoReader<'p, R> {
                 }
             }
 
-            self.header_properties.extend(header_properties.into_iter().map(|(k, l)| (k, l.join(" "))));
+            self.header_properties
+                .extend(header_properties.into_iter().map(|(k, l)| (k, l.join(" "))));
             self.header_notes.extend_from_slice(&u.notes);
             self.header_comments.extend_from_slice(&u.comments);
 
