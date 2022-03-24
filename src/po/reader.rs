@@ -412,15 +412,6 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
     }
 
     #[test]
-    fn test_func_new_with_error() {
-        let source = "msgid: \"--";
-        let parser = PoParser::new();
-        let reader = PoReader::new(source.as_bytes(), &parser);
-
-        assert!(reader.is_err(), "On bad entry, the reader should return an error");
-    }
-
-    #[test]
     fn test_func_read_line() {
         let parser = PoParser::new();
 
@@ -767,7 +758,25 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
     }
 
     #[test]
-    fn test_func_new_with_error() {
+    fn test_func_new_with_error_on_entry() {
+        let source = "msgid: \"--";
+        let parser = PoParser::new();
+        let reader = PoReader::new(source.as_bytes(), &parser);
+
+        match reader {
+            Err(err) => assert_eq!(
+                format!("{:?}", err),
+                "Parse error at line 2, got ‘msgid: \"--’"
+            ),
+            Ok(v) => panic!(
+                "Unexpected result: forms={:?}, notes={:?}, headers={:?}, next={:?}",
+                v.plural_forms, v.header_notes, v.header_properties, v.next_unit,
+            ),
+        }
+    }
+
+    #[test]
+    fn test_func_new_with_error_on_plural() {
         let source = "msgid \"\"\nmsgstr \"\"\n\"Plural-Forms: plural=1+\"";
         let parser = PoParser::new();
         let reader = PoReader::new(source.as_bytes(), &parser);
