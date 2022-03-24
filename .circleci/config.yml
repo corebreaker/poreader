@@ -12,12 +12,12 @@ jobs:
 
   coverage:
     docker:
-      - image: corebreaker/rust-devtools-circleci:rust1.59-v0.2.3
+      - image: corebreaker/rust-devtools-circleci:rust1.59-v0.3.0
     steps:
       - checkout
       - run:
           name: Make coverage
-          command: ".circleci/coverage.sh"
+          command: "coverage.sh"
       - run:
           name: Upload Coverage Result To Coveralls
           command: "coveralls -D target -i target/coverage/coveralls.json circleci"

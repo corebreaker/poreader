@@ -41,11 +41,11 @@ impl PluralForms {
         self.count
     }
 
-    pub fn get_definition(&self) -> &String {
+    pub fn get_definition(&self) -> &str {
         &self.definition
     }
 
-    pub fn get_formula(&self) -> &String {
+    pub fn get_formula(&self) -> &str {
         &self.formula_source
     }
 }
