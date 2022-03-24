@@ -34,7 +34,11 @@ jobs:
           command: "CARGO_NET_GIT_FETCH_WITH_CLI=true cargo test"
 
 workflows:
+  version: 2
   coverage:
+    filters:
+      branches:
+        only: main
     jobs:
       - coverage
 
