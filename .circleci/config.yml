@@ -4,6 +4,9 @@ jobs:
   checks:
     docker:
       - image: cimg/rust:1.59-node
+        auth:
+          username: corebreaker
+          password: $DOCKERHUB_ACCESS_TOKEN
     steps:
       - checkout
       - run:
@@ -13,6 +16,9 @@ jobs:
   coverage:
     docker:
       - image: corebreaker/rust-devtools-circleci:rust1.59-v0.3.0
+        auth:
+          username: corebreaker
+          password: $DOCKERHUB_ACCESS_TOKEN
     steps:
       - checkout
       - run:
@@ -27,6 +33,9 @@ jobs:
   test:
     docker:
       - image: cimg/rust:1.59
+        auth:
+          username: corebreaker
+          password: $DOCKERHUB_ACCESS_TOKEN
     steps:
       - checkout
       - run:
@@ -34,13 +43,12 @@ jobs:
           command: "CARGO_NET_GIT_FETCH_WITH_CLI=true cargo test"
 
 workflows:
-  version: 2
   coverage:
-    filters:
-      branches:
-        only: main
     jobs:
-      - coverage
+      - coverage:
+          filters:
+            branches:
+              only: main
 
   all-tests:
     jobs:
