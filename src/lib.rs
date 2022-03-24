@@ -80,7 +80,6 @@ use std::collections::HashMap;
 ///
 /// Defines common interface of catalogue readers. Read the units by simply iterating over the
 /// reader. The other methods are for the important metadata.
-/// 
 pub trait CatalogueReader: Iterator<Item = Result<unit::Unit, error::Error>> {
     /// The target language of the translation
     fn target_language(&self) -> &LanguageRange<'static>;
