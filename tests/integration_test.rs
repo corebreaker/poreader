@@ -1,6 +1,6 @@
 // no-coverage:start
 use locale_config::LanguageRange;
-use poreader::{error::Error, header::Header, note::Note, CatalogueReader, Message, Origin, PoParser, State};
+use poreader::{error::Error, note::Note, CatalogueReader, Message, Origin, PoParser, State};
 
 static SAMPLE_PO: &'static str = r###"
 msgid ""
@@ -64,33 +64,16 @@ fn integration_test() -> Result<(), Error> {
     assert_eq!(reader.target_language(), &lang);
     assert_eq!(
         reader.header_properties().get("Project-Id-Version"),
-        Some(&vec![a_str!("poreader test")])
+        Some(&a_str!("poreader test"))
     );
 
     {
         assert_eq!(reader.header_properties().get("Header0"), None);
         assert_eq!(
             reader.header_properties().get("Header1"),
-            Some(&vec![a_str!("Value1"), a_str!("Value2")])
+            Some(&a_str!("Value1 Value2"))
         );
-        assert_eq!(reader.header_properties().get("Header2"), Some(&vec![a_str!("ValueX")]));
-    }
-
-    {
-        let val = reader
-            .header_property_list()
-            .iter()
-            .filter(|h| h.name().starts_with("Header"))
-            .cloned()
-            .collect::<Vec<_>>();
-
-        let exp = vec![
-            Header::new(a_str!("Header1"), a_str!("Value1")),
-            Header::new(a_str!("Header2"), a_str!("ValueX")),
-            Header::new(a_str!("Header1"), a_str!("Value2")),
-        ];
-
-        assert_eq!(val, exp);
+        assert_eq!(reader.header_properties().get("Header2"), Some(&a_str!("ValueX")));
     }
 
     {

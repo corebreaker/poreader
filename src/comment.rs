@@ -13,7 +13,7 @@ impl Comment {
         self.kind
     }
 
-    pub fn comment(&self) -> &String {
+    pub fn comment(&self) -> &str {
         &self.content
     }
 }

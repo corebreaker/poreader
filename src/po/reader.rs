@@ -1,6 +1,5 @@
 use super::{line::PoLine, line_iter::LineIter, parser::PoParser, MessageExtractor as Extractor};
-use crate::{comment::Comment, error::Error, header::Header, note::Note, plural::PluralForms, unit::Unit};
-use crate::{CatalogueReader, Origin, State};
+use crate::{comment::Comment, error::Error, note::Note, plural::PluralForms, unit::Unit, CatalogueReader, Origin, State};
 
 use locale_config::LanguageRange;
 use std::{
@@ -19,8 +18,7 @@ pub struct PoReader<'p, R: Read> {
     next_unit: Option<Result<Unit, Error>>,
     header_notes: Vec<Note>,
     header_comments: Vec<Comment>,
-    header_properties: HashMap<String, Vec<String>>,
-    header_property_list: Vec<Header>,
+    header_properties: HashMap<String, String>,
     target_language: LanguageRange<'static>,
     plural_forms: Option<Rc<PluralForms>>,
 }
@@ -33,7 +31,6 @@ impl<'p, R: Read> PoReader<'p, R> {
             header_notes: vec![],
             header_comments: vec![],
             header_properties: HashMap::new(),
-            header_property_list: vec![],
             target_language: LanguageRange::invariant(),
             plural_forms: None,
         };
@@ -175,31 +172,32 @@ impl<'p, R: Read> PoReader<'p, R> {
 
     fn parse_po_header(&mut self, parser: &PoParser) -> Result<(), Error> {
         if let Some(Ok(ref u)) = self.next_unit {
+            let mut header_properties: HashMap<String, Vec<String>> = HashMap::new();
+
             for line in u.message.get_text().split('\n') {
                 if let Some(n) = line.find(':') {
                     let key = line[..n].trim();
                     let val = line[(n + 1)..].trim();
-                    let header = Header::new(key.to_owned(), val.to_owned());
 
-                    self.header_property_list.push(header);
-                    self.header_properties
+                    header_properties
                         .entry(key.to_owned())
                         .or_default()
                         .push(val.to_owned());
                 }
             }
 
+            self.header_properties.extend(header_properties.into_iter().map(|(k, l)| (k, l.join(" "))));
             self.header_notes.extend_from_slice(&u.notes);
             self.header_comments.extend_from_slice(&u.comments);
 
-            if let Some(lang) = self.header_properties.get("Language").and_then(|v| v.first()) {
+            if let Some(lang) = self.header_properties.get("Language") {
                 self.target_language = LanguageRange::new(lang)
                     .map(LanguageRange::into_static)
                     .or_else(|_| LanguageRange::from_unix(lang))
                     .unwrap_or_else(|_| LanguageRange::invariant());
             }
 
-            if let Some(forms) = self.header_properties.get("Plural-Forms").map(|v| v.join(" ")) {
+            if let Some(forms) = self.header_properties.get("Plural-Forms") {
                 if !forms.is_empty() {
                     self.plural_forms.replace(Rc::new(PluralForms::parse(&forms, parser)?));
                 }
@@ -240,12 +238,8 @@ impl<'p, R: Read> CatalogueReader for PoReader<'p, R> {
         &self.header_comments
     }
 
-    fn header_properties(&self) -> &HashMap<String, Vec<String>> {
+    fn header_properties(&self) -> &HashMap<String, String> {
         &self.header_properties
-    }
-
-    fn header_property_list(&self) -> &Vec<Header> {
-        &self.header_property_list
     }
 }
 
@@ -303,7 +297,6 @@ mod tests {
                 Comment::new('=', String::from("Comment 2")),
             ],
             header_properties: HashMap::new(),
-            header_property_list: vec![],
             target_language: LanguageRange::invariant(),
             plural_forms: None,
         }
@@ -383,13 +376,13 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                 assert_eq!(
                     reader.header_properties,
                     vec![
-                        ("Header-1", vec!["Value1", "Value2"]),
-                        ("Header-2", vec!["ValueA"]),
-                        ("Language", vec!["en"]),
-                        ("Plural-Forms", vec![definition]),
+                        ("Header-1", "Value1 Value2"),
+                        ("Header-2", "ValueA"),
+                        ("Language", "en"),
+                        ("Plural-Forms", definition),
                     ]
                     .into_iter()
-                    .map(|(k, v)| (String::from(k), v.into_iter().map(String::from).collect::<Vec<_>>()))
+                    .map(|(k, v)| (String::from(k), String::from(v)))
                     .collect::<HashMap<_, _>>()
                 );
 
@@ -804,7 +797,7 @@ Expected one of "(", "-", "n" or r#"[0-9]+"#"##,
                     reader.header_properties(),
                     &[("Any-Header", "Value"), ("Language", "fr"),]
                         .into_iter()
-                        .map(|(k, v)| (k.to_string(), vec![v.to_string()]))
+                        .map(|(k, v)| (k.to_string(), v.to_string()))
                         .collect::<HashMap<_, _>>()
                 );
 

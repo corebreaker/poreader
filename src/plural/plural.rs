@@ -111,7 +111,7 @@ mod tests {
         assert!(plural.forms.is_some(), "Form should be a `Some`");
         assert_eq!(plural.forms.as_ref().map(|v| v.get_count()), Some(2));
         assert_eq!(
-            plural.forms.as_ref().map(|v| v.get_formula()).map(|s| s.as_str()),
+            plural.forms.as_ref().map(|v| v.get_formula()),
             Some("n>1")
         );
 

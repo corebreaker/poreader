@@ -64,7 +64,6 @@ mod po;
 
 pub mod comment;
 pub mod error;
-pub mod header;
 pub mod note;
 pub mod plural;
 pub mod unit;
@@ -92,17 +91,7 @@ pub trait CatalogueReader: Iterator<Item = Result<unit::Unit, error::Error>> {
     fn header_comments(&self) -> &Vec<comment::Comment>;
 
     /// Header properties as a map
-    ///
-    /// An header may appear several times.
-    /// To obtains one value, you can join values with a separator like pipe character (`|`)
-    fn header_properties(&self) -> &HashMap<String, Vec<String>>;
-
-    /// Header properties as a list
-    ///
-    /// As an header may appear several times, you can list it by filter the returned vector.
-    /// All occurrences of a same header may not be consecutive,
-    /// the returned list contain list of header in the same order than in the file.
-    fn header_property_list(&self) -> &Vec<header::Header>;
+    fn header_properties(&self) -> &HashMap<String, String>;
 
     // TODO: More attributes, possibly a generic API
 }
