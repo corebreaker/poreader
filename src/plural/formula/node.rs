@@ -239,6 +239,13 @@ mod tests {
                         .collect(),
                 },
                 TestCase {
+                    test_name: "Operator `%` (with zero)",
+                    node: Node::new_binop(BinOp::Mod, Node::Var, Node::new_num(0)),
+                    exec_cases: vec![(-12, -12), (-10, -10), (0, 0), (23, 23), (35, 35)]
+                        .into_iter()
+                        .collect(),
+                },
+                TestCase {
                     test_name: "Operator `==`",
                     node: Node::new_binop(BinOp::Eq, Node::Var, Node::new_num(10)),
                     exec_cases: vec![(-12, 0), (2, 0), (100, 0), (10, 1)].into_iter().collect(),
