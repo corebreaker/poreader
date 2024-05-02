@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   checks:
     docker:
-      - image: cimg/rust:1.59-node
+      - image: cimg/rust:1.77.2-node
         auth:
           username: corebreaker
           password: $DOCKERHUB_ACCESS_TOKEN
@@ -15,7 +15,7 @@ jobs:
 
   coverage:
     docker:
-      - image: corebreaker/rust-devtools-circleci:rust1.59-v0.3.0
+      - image: corebreaker/rust-devtools-circleci:rust-1.77.2-v0.3.4
         auth:
           username: corebreaker
           password: $DOCKERHUB_ACCESS_TOKEN
@@ -32,7 +32,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/rust:1.59
+      - image: cimg/rust:1.77.2
         auth:
           username: corebreaker
           password: $DOCKERHUB_ACCESS_TOKEN
