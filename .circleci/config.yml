@@ -15,7 +15,7 @@ jobs:
 
   coverage:
     docker:
-      - image: corebreaker/rust-devtools-circleci:rust-1.77.2-v0.3.4
+      - image: corebreaker/rust-devtools-circleci:rust-1.77.2-v0.3.5
         auth:
           username: corebreaker
           password: $DOCKERHUB_ACCESS_TOKEN
