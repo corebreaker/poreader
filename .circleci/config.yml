@@ -26,7 +26,7 @@ jobs:
           command: "coverage.sh"
       - run:
           name: Upload Coverage Result To Coveralls
-          command: "coveralls -D target -i target/coverage/coveralls.json circleci"
+          command: "coveralls -D target target/coverage/coveralls.json circleci"
       - store_artifacts:
           path: target/coverage
 
