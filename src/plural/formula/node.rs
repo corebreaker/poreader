@@ -72,7 +72,7 @@ impl Node {
         Node::BinOp {
             op,
             lhs: Box::new(lhs),
-            rhs: Box::new(rhs),
+            rhs: Box::new(rhs)
         }
     }
 
@@ -80,7 +80,7 @@ impl Node {
         Node::Cond {
             test: Box::new(test),
             if_true: Box::new(if_true),
-            if_false: Box::new(if_false),
+            if_false: Box::new(if_false)
         }
     }
 

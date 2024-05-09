@@ -73,8 +73,7 @@ impl<'p, R: Read> Decoder for Peekable<LineIter<'p, R>> {
 // no-coverage:start
 #[cfg(test)]
 pub(crate) mod tests {
-    use super::super::PoParser;
-    use super::*;
+    use super::{super::PoParser, *};
     use std::collections::{hash_map::Entry, HashMap};
 
     type Str = &'static str;

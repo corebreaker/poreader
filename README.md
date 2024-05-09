@@ -23,7 +23,7 @@ It uses [Cargo], Rust's package manager. You can depend on this library by addin
 
 ```toml
 [dependencies]
-poreader = "~1.1"
+poreader = "1.1"
 ```
 
 Or, to use the Git repo directly:
@@ -78,6 +78,16 @@ fn main() -> Result<()> {
     Ok(())
 }
 ```
+
+# Status of the project
+
+The project works for instance.
+
+Future changes is directely related to the change of the format of the PO file.
+
+However, it would be updated with a need from contributors.
+You can post an issue or a pull request if you see something that can be improved.
+
 
 [Cargo]: http://crates.io
 [Docs.rs]: https://docs.rs/poreader/

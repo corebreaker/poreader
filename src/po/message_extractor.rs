@@ -138,8 +138,11 @@ impl<'r, D: Decoder> MessageExtractor<'r, D> {
 // no-coverage:start
 #[cfg(test)]
 mod tests {
-    use super::super::decoder::tests::{TestAction::*, TestDecoder};
-    use super::*;
+    use super::{
+        super::decoder::tests::{TestAction::*, TestDecoder},
+        *,
+    };
+
     use crate::error::Error;
 
     impl<'r, D: Decoder> MessageExtractor<'r, D> {
