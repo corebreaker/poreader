@@ -27,7 +27,9 @@ impl PoParser {
             .unwrap(),
             comment_re: Regex::new(r#"^\s*#(.)?\s*(.*)$"#).unwrap(),
             unescaper: Unescaper::new(),
+            // no-coverage:start
         }
+        // no-coverage:stop
     }
 
     pub fn parse<R: Read>(&self, reader: R) -> Result<PoReader<R>, Error> {

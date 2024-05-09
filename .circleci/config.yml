@@ -3,19 +3,22 @@ version: 2.1
 jobs:
   checks:
     docker:
-      - image: cimg/rust:1.77.2-node
+      - image: corebreaker/rust-devtools-circleci:rust-1.78.0-v0.3.8
         auth:
           username: corebreaker
           password: $DOCKERHUB_ACCESS_TOKEN
     steps:
       - checkout
       - run:
+          name: Show Env
+          command: "/bin/sh -c set" 
+      - run:
           name: Check formatting
-          command: "cargo fmt -- --config-path .circleci/fmt.ini --check"
+          command: "cargo +nightly fmt -- --config-path .circleci/fmt.toml --check"
 
   coverage:
     docker:
-      - image: corebreaker/rust-devtools-circleci:rust-1.77.2-v0.3.5
+      - image: corebreaker/rust-devtools-circleci:rust-1.78.0-v0.3.8
         auth:
           username: corebreaker
           password: $DOCKERHUB_ACCESS_TOKEN
@@ -26,13 +29,13 @@ jobs:
           command: "coverage.sh"
       - run:
           name: Upload Coverage Result To Coveralls
-          command: "coveralls -D target target/coverage/coveralls.json circleci"
+          command: "coveralls circleci -r poreader -D target -t $COVERALLS_REPO_TOKEN target/coverage/coveralls.json"
       - store_artifacts:
           path: target/coverage
 
   test:
     docker:
-      - image: cimg/rust:1.77.2
+      - image: cimg/rust:1.78.0
         auth:
           username: corebreaker
           password: $DOCKERHUB_ACCESS_TOKEN
@@ -45,10 +48,7 @@ jobs:
 workflows:
   coverage:
     jobs:
-      - coverage:
-          filters:
-            branches:
-              only: main
+      - coverage
 
   all-tests:
     jobs:

@@ -30,7 +30,9 @@ impl<'p, R: Read> Iterator for LineIter<'p, R> {
                     self.inner = None;
 
                     return Some(Err(Error::Io(n, e)));
+                    // no-coverage:start
                 }
+                // no-coverage:stop
                 None => {
                     return None;
                 }
@@ -147,7 +149,7 @@ mod tests {
     }
 
     #[test]
-    fn with_error() {
+    fn with_parse_error() {
         let lines = r#"
             #: File:1
             msgid "Line 1"
@@ -190,6 +192,21 @@ mod tests {
 
         if let Some(v) = iter.next() {
             panic!("Unexpected result for the fourth line: {:?}", v);
+        }
+    }
+
+    #[test]
+    fn with_io_error() {
+        let input = b"ABC\x32\x80\x32";
+
+        let parser = PoParser::new();
+        let mut iter = LineIter::new(&input[..], &parser);
+
+        match iter.next() {
+            Some(Err(_)) => {}
+            v => {
+                panic!("Error expected, got {v:?}");
+            }
         }
     }
 }

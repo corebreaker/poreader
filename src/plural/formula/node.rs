@@ -73,7 +73,9 @@ impl Node {
             op,
             lhs: Box::new(lhs),
             rhs: Box::new(rhs),
+            // no-coverage:start
         }
+        // no-coverage:stop
     }
 
     pub(super) fn new_cond(test: Node, if_true: Node, if_false: Node) -> Node {
@@ -81,7 +83,9 @@ impl Node {
             test: Box::new(test),
             if_true: Box::new(if_true),
             if_false: Box::new(if_false),
+            // no-coverage:start
         }
+        // no-coverage:stop
     }
 
     pub(super) fn execute(&self, n: i64) -> i64 {

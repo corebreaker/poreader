@@ -16,9 +16,9 @@ impl PoLine {
     pub(super) fn line(&self) -> usize {
         match self {
             PoLine::Blank => 0,
-            PoLine::Comment(l, _, _) => *l,
-            PoLine::Message(l, _, _, _) => *l,
-            PoLine::Continuation(l, _, _) => *l,
+            PoLine::Comment(l, ..) => *l,
+            PoLine::Message(l, ..) => *l,
+            PoLine::Continuation(l, ..) => *l,
         }
     }
 }

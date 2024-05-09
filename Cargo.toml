@@ -12,9 +12,9 @@ keywords = ["translate", "po", "gettext", "file"]
 categories = ["internationalization", "text-processing"]
 
 [build-dependencies]
-lalrpop = "~0.19.7"
+lalrpop = "0.19.12"
 
 [dependencies]
-lalrpop-util = { version = "~0.19.7", features = ["lexer"] }
-locale_config = "^0.3.0"
-regex = "^1.5.5"
+lalrpop-util = { version = "0.20.2", features = ["lexer"] }
+locale_config = "0.3.0"
+regex = "1.10.4"
