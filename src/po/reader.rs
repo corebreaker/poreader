@@ -35,7 +35,9 @@ impl<'p, R: Read> PoReader<'p, R> {
             header_properties: HashMap::new(),
             target_language: LanguageRange::invariant(),
             plural_forms: None,
+            // no-coverage:start
         };
+        // no-coverage:stop
 
         let (next_unit, has_header) = match res.next_unit(true) {
             Some(Err(err)) => {
@@ -303,6 +305,19 @@ mod tests {
             target_language: LanguageRange::invariant(),
             plural_forms: None,
         }
+    }
+
+    #[test]
+    fn test_empty() {
+        let empty = b"";
+        let parser = PoParser::new();
+        let reader = PoReader::new(&empty[..], &parser).unwrap();
+
+        assert!(
+            reader.next_unit.is_none(),
+            "Next unit should be None for empty source, found {:?}",
+            reader.next_unit,
+        );
     }
 
     #[test]

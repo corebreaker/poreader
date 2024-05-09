@@ -30,7 +30,9 @@ impl PluralForms {
             count,
             definition: input.to_string(),
             formula_source,
+            // no-coverage:start
         })
+        // no-coverage:stop
     }
 
     pub fn get_value(&self, count: usize) -> Option<usize> {
@@ -75,7 +77,7 @@ mod tests {
         }
 
         pub(crate) fn for_tests_simple() -> PluralForms {
-            make_forms().0
+            make_forms(COUNT_CASE1, FORMULA_CASE1).0
         }
     }
 
@@ -87,11 +89,18 @@ mod tests {
 
     impl Eq for PluralForms {}
 
-    const COUNT: usize = 3;
-    const FORMULA: &str = "(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 or n%100>=20) ? 1 : 2)";
+    const COUNT_CASE1: Option<usize> = Some(3);
+    const FORMULA_CASE1: &str = "(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 or n%100>=20) ? 1 : 2)";
 
-    fn make_forms() -> (PluralForms, String) {
-        let definition = format!("nplurals={}; plural={};", COUNT, FORMULA);
+    const COUNT_CASE2: Option<usize> = None;
+    const FORMULA_CASE2: &str = "n>1 ? 0 : 1";
+
+    fn make_forms(count: Option<usize>, formula: &str) -> (PluralForms, String) {
+        let definition = match count {
+            Some(count) => format!("nplurals={count}; plural={formula};"),
+            None => format!("plural={formula};"),
+        };
+
         let parser = PoParser::new();
         let res = PluralForms::parse(&definition, &parser).unwrap();
 
@@ -126,8 +135,19 @@ mod tests {
     }
 
     #[test]
+    fn test_func_with_error() {
+        let parser = PoParser::new();
+        let res = PluralForms::parse("nplurals=abc; plural=n>1 ? 0 : 1;", &parser);
+
+        assert!(
+            res.is_err(),
+            "The parser should return an error for parsing of `nplurals` {res:?}",
+        );
+    }
+
+    #[test]
     fn test_func_get_value() {
-        let forms = make_forms().0;
+        let forms = make_forms(COUNT_CASE1, FORMULA_CASE1).0;
 
         for (count, index) in make_cases() {
             assert_eq!(forms.get_value(count), Some(index), "For {}", count);
@@ -136,30 +156,37 @@ mod tests {
 
     #[test]
     fn test_func_get_count() {
-        let forms = make_forms().0;
+        let forms = make_forms(COUNT_CASE1, FORMULA_CASE1).0;
 
-        assert_eq!(forms.get_count(), COUNT);
+        assert_eq!(forms.get_count(), 3);
+    }
+
+    #[test]
+    fn test_func_get_count_with_default() {
+        let forms = make_forms(COUNT_CASE2, FORMULA_CASE2).0;
+
+        assert_eq!(forms.get_count(), 2);
     }
 
     #[test]
     fn test_func_get_definition() {
-        let (forms, definition) = make_forms();
+        let (forms, definition) = make_forms(COUNT_CASE1, FORMULA_CASE1);
 
         assert_eq!(forms.get_definition(), &definition);
     }
 
     #[test]
     fn test_func_get_formula() {
-        let forms = make_forms().0;
+        let forms = make_forms(COUNT_CASE1, FORMULA_CASE1).0;
 
-        assert_eq!(forms.get_formula(), FORMULA);
+        assert_eq!(forms.get_formula(), FORMULA_CASE1);
     }
 
     #[test]
     fn test_forms() {
-        let (forms, definition) = make_forms();
+        let (forms, definition) = make_forms(COUNT_CASE1, FORMULA_CASE1);
 
-        assert_eq!(&forms.formula_source, FORMULA, "Formula");
+        assert_eq!(&forms.formula_source, FORMULA_CASE1, "Formula");
         assert_eq!(forms.definition, definition, "Definition");
         assert_eq!(forms.count, 3);
 
@@ -170,7 +197,7 @@ mod tests {
 
     #[test]
     fn test_struct() {
-        let (forms, definition) = make_forms();
+        let (forms, definition) = make_forms(COUNT_CASE1, FORMULA_CASE1);
         let copy = forms.clone();
 
         assert_eq!(copy.formula, forms.formula, "Formula was not cloned");
@@ -181,8 +208,8 @@ mod tests {
         assert_eq!(
             format!("{:?}", copy),
             format!(
-                "PluralForms {{ formula: {:?}, count: {}, definition: {:?}, formula_source: {:?} }}",
-                forms.formula, COUNT, definition, FORMULA,
+                "PluralForms {{ formula: {:?}, count: 3, definition: {:?}, formula_source: {:?} }}",
+                forms.formula, definition, FORMULA_CASE1,
             ),
         );
 
@@ -190,7 +217,7 @@ mod tests {
     }
 
     #[test]
-    fn test_erro_parse_on_nplurals() {
+    fn test_error_parse_on_nplurals() {
         let parser = PoParser::new();
         let res = PluralForms::parse("nplurals=wrong; plural=0", &parser);
 
